@@ -28,7 +28,7 @@ export function ChangePasswordForm() {
     }
 
     if (password !== confirmPassword) {
-      setError("As senhas nao conferem.");
+      setError("As senhas não conferem.");
       return;
     }
 
@@ -38,7 +38,7 @@ export function ChangePasswordForm() {
 
     if (passwordError) {
       setIsLoading(false);
-      setError("Nao foi possivel trocar a senha.");
+      setError("Não foi possível trocar a senha.");
       return;
     }
 
@@ -50,7 +50,7 @@ export function ChangePasswordForm() {
     setIsLoading(false);
 
     if (profileError) {
-      setError("Senha alterada, mas nao foi possivel atualizar o perfil.");
+      setError("Senha alterada, mas não foi possível atualizar o perfil.");
       return;
     }
 
@@ -62,7 +62,7 @@ export function ChangePasswordForm() {
     <Card>
       <CardHeader>
         <CardTitle>Troque sua senha</CardTitle>
-        <CardDescription>A senha inicial e 12345678 e deve ser alterada no primeiro acesso.</CardDescription>
+        <CardDescription>A senha inicial é 12345678 e deve ser alterada no primeiro acesso.</CardDescription>
       </CardHeader>
       <CardContent>
         <form className="space-y-4" onSubmit={onSubmit}>

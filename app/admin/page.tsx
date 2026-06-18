@@ -1,34 +1,29 @@
-import { redirect } from "next/navigation";
+import Link from "next/link";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { createClient } from "@/lib/supabase/server";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default async function AdminPage() {
-  const supabase = await createClient();
-  const { data: isAdmin } = await supabase.rpc("has_role", { role_name: "admin" });
+const cards = [
+  { href: "/admin/participants", title: "Participantes", text: "Crie usuários, altere roles e resete senhas." },
+  { href: "/admin/teams", title: "Times", text: "Cadastre seleções, códigos FIFA e bandeiras." },
+  { href: "/admin/rounds", title: "Rodadas", text: "Organize fases, prazos e ordem do bolão." },
+  { href: "/admin/matches", title: "Jogos", text: "Monte a tabela manual da Copa 2026." },
+  { href: "/admin/results", title: "Resultados", text: "Lance placares e recalcule pontuações." },
+  { href: "/admin/initial-points", title: "Pontuação inicial", text: "Ajuste pontos anteriores e importe CSV." },
+];
 
-  if (!isAdmin) {
-    redirect("/dashboard");
-  }
-
+export default function AdminPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Admin</h1>
-        <p className="text-muted-foreground">Area reservada para cadastro manual nas proximas fases.</p>
-      </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>Painel em preparacao</CardTitle>
-          <CardDescription>
-            A base de banco, RLS e permissoes ja esta pronta para receber os formularios.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          Nao ha API externa configurada. O fluxo planejado e cadastro manual de times, rodadas,
-          jogos, resultados e ajustes do bolao.
-        </CardContent>
-      </Card>
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {cards.map((card) => (
+        <Link key={card.href} href={card.href}>
+          <Card className="h-full transition-colors hover:bg-accent">
+            <CardHeader>
+              <CardTitle>{card.title}</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">{card.text}</CardContent>
+          </Card>
+        </Link>
+      ))}
     </div>
   );
 }

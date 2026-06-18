@@ -1,0 +1,346 @@
+Continue o projeto FEBAJE — Bolão da Copa do Mundo 2026.
+
+Contexto atual:
+As Fases 1 e 2 já foram implementadas e testadas com sucesso.
+
+Já existe:
+
+App Next.js com Tailwind/shadcn.
+Rotas: /auth, /change-password, /dashboard, /ranking e /admin.
+Layout responsivo com header FEBAJE e Bolão da Copa 2026.
+Supabase client/server em lib/supabase/client.ts e lib/supabase/server.ts.
+Login por username, convertido internamente para username@febaje.local.
+Troca obrigatória de senha no primeiro acesso.
+Migration inicial aplicada no Supabase com tabelas, RLS, has_role, ranking_view, calculate_prediction_points e bootstrap seguro do primeiro admin.
+Primeiro admin já criado, acesso ao /admin liberado e troca de senha funcionando.
+
+Importante:
+O sistema NÃO terá integração com API externa.
+Não usar API-Football.
+Não usar RapidAPI.
+Não criar secrets de API.
+Não criar atualização automática de placares via API.
+Todos os jogos, rodadas, times, resultados e pontuação inicial serão cadastrados manualmente pelo administrador.
+
+Agora implemente a Fase 3: painel administrativo completo.
+
+Objetivo:
+Transformar a rota /admin em uma área administrativa funcional para cadastrar e gerenciar participantes, times, rodadas, jogos, resultados e pontuação inicial.
+
+Regras gerais:
+
+Apenas usuários admin podem acessar /admin e suas subrotas.
+Se usuário comum tentar acessar /admin, redirecionar para /dashboard.
+Se usuário não autenticado tentar acessar /admin, redirecionar para /auth.
+Usar as tabelas e funções já criadas na migration inicial.
+Não reescrever a migration inteira sem necessidade.
+Se precisar alterar banco, criar uma nova migration incremental.
+Manter RLS funcionando.
+Manter o login e troca obrigatória de senha funcionando como está.
+
+Rotas administrativas necessárias:
+
+/admin
+/admin/participants
+/admin/teams
+/admin/rounds
+/admin/matches
+/admin/results
+/admin/initial-points
+
+Layout admin:
+Criar layout para a área administrativa com:
+
+Título “Painel Administrativo”
+Menu com links:
+Participantes
+Times
+Rodadas
+Jogos
+Resultados
+Pontuação inicial
+Botão ou link para voltar ao dashboard
+Layout responsivo
+Usar shadcn/ui sempre que possível
+
+Componentes sugeridos:
+
+AdminLayout
+AdminNav
+ParticipantsAdminPage
+TeamsAdminPage
+RoundsAdminPage
+MatchesAdminPage
+ResultsAdminPage
+InitialPointsAdminPage
+AdminTable
+AdminFormDialog
+ConfirmDialog
+Página /admin/participants
+
+Criar CRUD de participantes.
+
+Funcionalidades:
+
+Listar participantes cadastrados.
+Criar participante.
+Editar participante.
+Alterar role entre admin e user.
+Editar pontuação inicial.
+Resetar senha para 12345678.
+Ao resetar senha, marcar must_change_password = true.
+Exibir se o usuário precisa trocar senha.
+Exibir se é admin ou usuário comum.
+
+Campos:
+
+name
+username
+role
+initial_points
+must_change_password
+
+Regras:
+
+O username deve ser usado internamente como username@febaje.local no Supabase Auth.
+Ao criar um participante, criar também o usuário no Supabase Auth com senha padrão 12345678.
+Se não for possível criar usuário Auth diretamente pelo client comum, implementar essa criação de forma segura pelo backend/server action usando service role, ou deixar claro no código onde será necessário configurar.
+Não permitir username duplicado.
+Não permitir name vazio.
+Não permitir initial_points negativo.
+Página /admin/teams
+
+Criar CRUD de times/seleções.
+
+Funcionalidades:
+
+Listar times.
+Criar time.
+Editar time.
+Excluir time apenas se ele não estiver vinculado a jogos.
+Mostrar prévia da bandeira.
+
+Campos:
+
+name
+fifa_code
+iso_code
+flag_url
+group_name
+
+Regras:
+
+fifa_code exemplo: BRA, ARG, USA.
+iso_code exemplo: br, ar, us.
+Se iso_code for preenchido e flag_url estiver vazio, preencher automaticamente:
+https://flagcdn.com/w80/{iso_code}.png
+Não permitir name vazio.
+Não permitir fifa_code duplicado, se possível.
+Não permitir excluir time usado em matches.
+Página /admin/rounds
+
+Criar CRUD de rodadas.
+
+Funcionalidades:
+
+Listar rodadas.
+Criar rodada.
+Editar rodada.
+Excluir rodada apenas se não tiver jogos vinculados.
+
+Campos:
+
+name
+phase
+round_number
+starts_at
+prediction_deadline
+
+Opções de phase:
+
+group_stage
+round_of_32
+round_of_16
+quarter_final
+semi_final
+third_place
+final
+
+Regras:
+
+prediction_deadline é o prazo de fechamento dos palpites da rodada inteira.
+Na fase de grupos, normalmente será 1 minuto antes do primeiro jogo da rodada.
+Não permitir name vazio.
+Não permitir round_number negativo.
+Página /admin/matches
+
+Criar CRUD de jogos.
+
+Funcionalidades:
+
+Listar jogos cadastrados.
+Criar jogo.
+Editar jogo.
+Excluir jogo apenas se não tiver palpites vinculados.
+Filtrar por rodada.
+Filtrar por status.
+Mostrar bandeiras e nomes dos times.
+
+Campos:
+
+round_id
+home_team_id
+away_team_id
+starts_at
+status
+phase
+weight
+
+Status possíveis:
+
+scheduled
+locked
+finished
+confirmed
+cancelled
+
+Regras:
+
+Não permitir home_team_id igual a away_team_id.
+O peso deve ser sugerido automaticamente conforme a fase:
+group_stage = 1
+round_of_32 = 2
+round_of_16 = 2
+quarter_final = 2
+semi_final = 2
+third_place = 2
+final = 3
+Permitir ajuste manual do weight pelo admin.
+Não permitir criar jogo sem rodada, mandante, visitante e data.
+Página /admin/results
+
+Criar tela para lançamento manual de resultados.
+
+Funcionalidades:
+
+Listar jogos cadastrados.
+Filtrar por rodada.
+Filtrar por status.
+Inserir placar real do jogo.
+Salvar placar.
+Confirmar resultado.
+Recalcular pontuação do jogo.
+Permitir editar placar de jogo confirmado e recalcular pontos.
+
+Campos exibidos:
+
+Rodada
+Mandante
+Visitante
+Data/hora
+Status
+Placar atual salvo
+Campo home_score
+Campo away_score
+Botão salvar placar
+Botão confirmar resultado
+Botão recalcular pontos
+
+Regras:
+
+Placar aceita apenas números.
+Não aceita números negativos.
+Máximo de 2 dígitos.
+Ao confirmar resultado:
+definir result_confirmed = true, se esse campo existir
+definir status = confirmed
+executar calculate_prediction_points(match_id)
+Ao recalcular:
+executar calculate_prediction_points(match_id)
+Após confirmar/recalcular, ranking_view deve refletir a atualização.
+Mostrar toast de sucesso ou erro.
+Página /admin/initial-points
+
+Criar tela para gerenciar pontuação inicial dos participantes.
+
+Funcionalidades:
+
+Listar todos os participantes.
+Editar initial_points individualmente.
+Salvar alterações.
+Criar importação por textarea CSV.
+
+Formato CSV:
+nome,username,pontuacao_inicial
+
+Regras da importação:
+
+Se username existir, atualizar initial_points.
+Se username não existir, mostrar em uma lista de erros.
+Não criar usuário automaticamente nessa importação por enquanto, apenas atualizar existentes.
+Ignorar linhas vazias.
+Mostrar resumo:
+Quantos foram atualizados
+Quantos tiveram erro
+Validações e UI
+
+Usar shadcn/ui:
+
+Button
+Input
+Select
+Card
+Table
+Dialog
+Badge
+Toast
+Textarea
+
+Textos da interface em português com acentos:
+
+Bolão
+Usuário
+Pontuação
+Rodada
+Participantes
+Resultados
+Jogos
+Times
+Salvar
+Editar
+Excluir
+Confirmar
+Recalcular
+Segurança
+
+Garantir:
+
+Usuário comum não acessa admin.
+Usuário comum não altera dados administrativos.
+RLS respeitada.
+Operações administrativas usam server actions ou camada segura quando necessário.
+Não expor service role no frontend.
+Não mexer indevidamente
+
+Não remover:
+
+Login por username.
+Troca obrigatória de senha.
+Middleware de autenticação.
+Função has_role.
+Função calculate_prediction_points.
+View ranking_view.
+Bootstrap do primeiro admin.
+Entrega esperada
+
+Ao final, informe:
+
+Arquivos criados.
+Arquivos alterados.
+Se criou nova migration.
+Como testar cada página admin.
+Como criar participante.
+Como cadastrar time, rodada e jogo.
+Como lançar placar e confirmar resultado.
+Como importar pontuação inicial.
+Próximo passo recomendado para a Fase 4: dashboard de palpites do usuário.

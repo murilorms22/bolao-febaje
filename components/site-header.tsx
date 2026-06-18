@@ -1,22 +1,22 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
-import { createClient } from "@/lib/supabase/server";
 
-export async function SiteHeader() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export function SiteHeader() {
+  const pathname = usePathname();
+  const showNav = pathname !== "/auth";
 
   return (
     <header className="border-b bg-background/95">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
         <Link href="/dashboard" className="space-y-1">
           <p className="text-xl font-bold tracking-tight">FEBAJE</p>
-          <p className="text-sm text-muted-foreground">Bolao da Copa do Mundo 2026</p>
+          <p className="text-sm text-muted-foreground">Bolão da Copa do Mundo 2026</p>
         </Link>
-        {user ? (
+        {showNav ? (
           <nav className="flex flex-wrap items-center gap-2 text-sm">
             <Link className="rounded-md px-3 py-2 hover:bg-accent" href="/dashboard">
               Dashboard

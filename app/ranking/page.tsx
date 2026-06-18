@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 type RankingRow = {
   user_id: string;
   username: string;
@@ -18,7 +20,7 @@ export default async function RankingPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Ranking</h1>
-        <p className="text-muted-foreground">Classificacao calculada a partir dos palpites encerrados.</p>
+        <p className="text-muted-foreground">Classificação calculada a partir dos palpites encerrados.</p>
       </div>
       <Card>
         <CardHeader>

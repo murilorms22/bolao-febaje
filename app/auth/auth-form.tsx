@@ -32,7 +32,7 @@ export function AuthForm() {
     setIsLoading(false);
 
     if (signInError) {
-      setError("Username ou senha invalidos.");
+      setError("Usuário ou senha inválidos.");
       return;
     }
 
@@ -43,7 +43,7 @@ export function AuthForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Entrar no bolao</CardTitle>
+        <CardTitle>Entrar no bolão</CardTitle>
         <CardDescription>Use seu username. Internamente ele vira username@febaje.local.</CardDescription>
       </CardHeader>
       <CardContent>

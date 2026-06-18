@@ -7,8 +7,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "FEBAJE | Bolao da Copa 2026",
-  description: "Bolao da Copa do Mundo 2026 da FEBAJE",
+  title: "FEBAJE | Bolão da Copa 2026",
+  description: "Bolão da Copa do Mundo 2026 da FEBAJE",
 };
 
 export default function RootLayout({
