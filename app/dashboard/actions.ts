@@ -32,7 +32,7 @@ export async function savePrediction(formData: FormData) {
   const fixtureKey = text(formData, "fixture_key");
   const homeScore = scoreValue(formData, "home_score");
   const awayScore = scoreValue(formData, "away_score");
-  const fixture = manualFixtures.find((item) => item.key === fixtureKey);
+  const fixture = manualFixtures.find((item) => item.id === fixtureKey);
 
   if (!fixture) {
     redirectBack("error", "Jogo inválido.");

@@ -5,6 +5,7 @@ export type ManualPrediction = {
 };
 
 export type ManualFixture = {
+  id: string;
   key: string;
   round: string;
   home: string;
@@ -12,7 +13,6 @@ export type ManualFixture = {
   homeFlag: string;
   awayFlag: string;
   result: { home: number; away: number } | null;
-  lockedPredictions?: Record<string, ManualPrediction>;
 };
 
 export type FixtureScore = {
@@ -33,6 +33,7 @@ function fixture(
   lockedPrediction?: { home: number; away: number },
 ): ManualFixture {
   return {
+    id: key,
     key,
     round,
     home,
@@ -40,9 +41,6 @@ function fixture(
     homeFlag: flag(homeIso),
     awayFlag: flag(awayIso),
     result,
-    lockedPredictions: lockedPrediction
-      ? { murilo: { fixture_key: key, home_score: lockedPrediction.home, away_score: lockedPrediction.away } }
-      : undefined,
   };
 }
 
@@ -109,20 +107,15 @@ function outcome(home: number, away: number) {
   return "draw";
 }
 
-export function getFixturePrediction(
-  fixture: ManualFixture,
-  prediction?: ManualPrediction,
-  username?: string | null,
-) {
-  return prediction || (username ? fixture.lockedPredictions?.[username.toLowerCase()] : undefined);
+export function getFixturePrediction(_fixture: ManualFixture, prediction?: ManualPrediction) {
+  return prediction;
 }
 
 export function scoreFixture(
   fixture: ManualFixture,
   prediction?: ManualPrediction,
-  username?: string | null,
 ): FixtureScore {
-  const effectivePrediction = getFixturePrediction(fixture, prediction, username);
+  const effectivePrediction = getFixturePrediction(fixture, prediction);
 
   if (!fixture.result) {
     return { points: 0, status: "pending" };
@@ -132,11 +125,16 @@ export function scoreFixture(
     return { points: 0, status: "no-prediction" };
   }
 
-  if (effectivePrediction.home_score === fixture.result.home && effectivePrediction.away_score === fixture.result.away) {
+  const predictedHome = Number(effectivePrediction.home_score);
+  const predictedAway = Number(effectivePrediction.away_score);
+  const resultHome = Number(fixture.result.home);
+  const resultAway = Number(fixture.result.away);
+
+  if (predictedHome === resultHome && predictedAway === resultAway) {
     return { points: 10, status: "exact" };
   }
 
-  if (outcome(effectivePrediction.home_score, effectivePrediction.away_score) === outcome(fixture.result.home, fixture.result.away)) {
+  if (outcome(predictedHome, predictedAway) === outcome(resultHome, resultAway)) {
     return { points: 5, status: "outcome" };
   }
 

@@ -31,7 +31,7 @@ export function calculateRanking(profiles: RankingProfile[] = [], predictions: R
       let correctOutcomes = 0;
 
       for (const fixture of manualFixtures) {
-        const score = scoreFixture(fixture, userPredictions?.get(fixture.key), profile.username);
+        const score = scoreFixture(fixture, userPredictions?.get(fixture.id));
         predictionPoints += score.points;
         if (score.status === "exact") exactPredictions += 1;
         if (score.status === "outcome") correctOutcomes += 1;

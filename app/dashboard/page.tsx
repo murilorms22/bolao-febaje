@@ -105,13 +105,12 @@ export default async function DashboardPage({
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {visibleFixtures.map((fixture) => {
-            const prediction = getFixturePrediction(fixture, predictionsByFixture.get(fixture.key), profile?.username);
-            const score = scoreFixture(fixture, prediction, profile?.username);
-            const hasLockedPrediction = Boolean(profile?.username && fixture.lockedPredictions?.[profile.username.toLowerCase()]);
-            const isOpen = !fixture.result && !hasLockedPrediction;
+            const prediction = getFixturePrediction(fixture, predictionsByFixture.get(fixture.id));
+            const score = scoreFixture(fixture, prediction);
+            const isOpen = !fixture.result;
 
             return (
-              <Card key={fixture.key} className={`relative h-full border-2 ${statusStyles[score.status]}`}>
+              <Card key={fixture.id} className={`relative h-full border-2 ${statusStyles[score.status]}`}>
                 <Badge className="absolute right-2 top-2 text-[11px]" variant="outline">
                   +{score.points}
                 </Badge>
@@ -137,7 +136,7 @@ export default async function DashboardPage({
                 </CardHeader>
                 <CardContent className="p-3 pt-0 sm:p-4 sm:pt-0">
                   <form action={savePrediction} className="space-y-3">
-                    <input type="hidden" name="fixture_key" value={fixture.key} />
+                    <input type="hidden" name="fixture_key" value={fixture.id} />
                     <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
                       <Input
                         className="h-11 text-center text-base"
