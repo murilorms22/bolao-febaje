@@ -1,8 +1,10 @@
 "use server";
 
 import { randomUUID } from "crypto";
+import { readFile } from "fs/promises";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { join } from "path";
 
 import { usernameToEmail } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -72,6 +74,95 @@ type RepairableProfile = {
   initial_points: number;
   must_change_password: boolean;
 };
+
+type ImportedParticipant = {
+  username: string;
+  displayName: string;
+};
+
+type ImportedPrediction = {
+  username: string;
+  fixtureKey: string;
+  homeScore: number;
+  awayScore: number;
+};
+
+function parseSqlTuples(block: string) {
+  return Array.from(block.matchAll(/\(([^()]*)\)/g)).map((match) =>
+    Array.from(match[1].matchAll(/'([^']*)'|(-?\d+)/g)).map((valueMatch) => valueMatch[1] ?? valueMatch[2] ?? ""),
+  );
+}
+
+async function loadImportCodigo() {
+  const sql = await readFile(join(process.cwd(), "importarcodigo.txt"), "utf8");
+  const usersBlock = sql.match(
+    /with\s+users\(username,\s*display_name\)\s+as\s*\(\s*values\s*([\s\S]*?)\)\s*insert\s+into\s+auth\.users/i,
+  )?.[1];
+  const predictionsBlock = sql.match(
+    /with\s+prediction_data\(username,\s*fixture_id,\s*home_score,\s*away_score\)\s+as\s*\(\s*values\s*([\s\S]*?)\)\s*insert\s+into\s+public\.manual_predictions/i,
+  )?.[1];
+
+  if (!usersBlock) {
+    throw new Error("Nao encontrei o bloco de usuarios em importarcodigo.txt.");
+  }
+
+  if (!predictionsBlock) {
+    throw new Error("Nao encontrei o bloco de palpites em importarcodigo.txt.");
+  }
+
+  const participants: ImportedParticipant[] = parseSqlTuples(usersBlock)
+    .filter((tuple) => tuple.length >= 2)
+    .map(([username, displayName]) => ({
+      username: String(username).trim().toLowerCase(),
+      displayName: String(displayName).trim(),
+    }))
+    .filter((participant) => participant.username && participant.displayName);
+
+  const predictions: ImportedPrediction[] = parseSqlTuples(predictionsBlock)
+    .filter((tuple) => tuple.length >= 4)
+    .map(([username, fixtureKey, homeScore, awayScore]) => ({
+      username: String(username).trim().toLowerCase(),
+      fixtureKey: String(fixtureKey).trim(),
+      homeScore: Number(homeScore),
+      awayScore: Number(awayScore),
+    }))
+    .filter(
+      (prediction) =>
+        prediction.username &&
+        prediction.fixtureKey &&
+        Number.isInteger(prediction.homeScore) &&
+        Number.isInteger(prediction.awayScore),
+    );
+
+  if (!participants.length) {
+    throw new Error("Nenhum usuario valido encontrado em importarcodigo.txt.");
+  }
+
+  if (!predictions.length) {
+    throw new Error("Nenhum palpite valido encontrado em importarcodigo.txt.");
+  }
+
+  return { participants, predictions };
+}
+
+async function findAuthUserIdByEmail(admin: ReturnType<typeof createAdminClient>, email: string) {
+  let page = 1;
+
+  while (page <= 20) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    const match = data.users.find((user) => user.email?.toLowerCase() === email.toLowerCase());
+    if (match) return match.id;
+    if (data.users.length < 1000) return null;
+    page += 1;
+  }
+
+  return null;
+}
 
 async function recreateAuthForProfile(admin: ReturnType<typeof createAdminClient>, profile: RepairableProfile) {
   const oldUserId = String(profile.id);
@@ -143,6 +234,141 @@ async function recreateAuthForProfile(admin: ReturnType<typeof createAdminClient
   }
 
   return newUserId;
+}
+
+export async function importParticipantsFromImportCodigo() {
+  const path = "/admin/participants";
+  await requireAdmin();
+  const admin = getAdminClientOrRedirect(path);
+
+  let imported;
+
+  try {
+    imported = await loadImportCodigo();
+  } catch (error) {
+    redirectBack(path, "error", error instanceof Error ? error.message : "Erro ao ler importarcodigo.txt.");
+  }
+
+  const userIdsByUsername = new Map<string, string>();
+  const failures: string[] = [];
+  let createdAuthUsers = 0;
+  let reusedAuthUsers = 0;
+  let profileCount = 0;
+
+  for (const participant of imported.participants) {
+    const email = usernameToEmail(participant.username);
+    let userId: string | null = null;
+
+    const { data, error } = await admin.auth.admin.createUser({
+      email,
+      password: "12345678",
+      email_confirm: true,
+      user_metadata: {
+        username: participant.username,
+        display_name: participant.displayName,
+      },
+    });
+
+    if (data.user) {
+      userId = data.user.id;
+      createdAuthUsers += 1;
+    } else if (error) {
+      const maybeExistingUserId = await findAuthUserIdByEmail(admin, email);
+
+      if (maybeExistingUserId) {
+        userId = maybeExistingUserId;
+        reusedAuthUsers += 1;
+
+        const { error: updateAuthError } = await admin.auth.admin.updateUserById(userId, {
+          password: "12345678",
+          email_confirm: true,
+          user_metadata: {
+            username: participant.username,
+            display_name: participant.displayName,
+          },
+        });
+
+        if (updateAuthError) {
+          failures.push(`${participant.username}: ${updateAuthError.message}`);
+          continue;
+        }
+      } else {
+        failures.push(`${participant.username}: ${error.message}`);
+        continue;
+      }
+    }
+
+    if (!userId) {
+      failures.push(`${participant.username}: usuario Auth nao retornado.`);
+      continue;
+    }
+
+    const { error: profileError } = await admin.from("profiles").upsert(
+      {
+        id: userId,
+        username: participant.username,
+        display_name: participant.displayName,
+        role: "user",
+        initial_points: 0,
+        must_change_password: true,
+      },
+      { onConflict: "id" },
+    );
+
+    if (profileError) {
+      failures.push(`${participant.username}: ${profileError.message}`);
+      continue;
+    }
+
+    userIdsByUsername.set(participant.username, userId);
+    profileCount += 1;
+  }
+
+  const predictionRows = imported.predictions.flatMap((prediction) => {
+    const userId = userIdsByUsername.get(prediction.username);
+
+    if (!userId) {
+      failures.push(`${prediction.username}: profile nao encontrado para importar palpite.`);
+      return [];
+    }
+
+    return [
+      {
+        user_id: userId,
+        fixture_key: prediction.fixtureKey,
+        home_score: prediction.homeScore,
+        away_score: prediction.awayScore,
+      },
+    ];
+  });
+
+  let predictionCount = 0;
+
+  for (let index = 0; index < predictionRows.length; index += 400) {
+    const chunk = predictionRows.slice(index, index + 400);
+    const { error } = await admin.from("manual_predictions").upsert(chunk, {
+      onConflict: "user_id,fixture_key",
+    });
+
+    if (error) {
+      failures.push(`palpites ${index + 1}-${index + chunk.length}: ${error.message}`);
+      continue;
+    }
+
+    predictionCount += chunk.length;
+  }
+
+  revalidatePath(path);
+  revalidatePath("/dashboard");
+  revalidatePath("/ranking");
+
+  const summary = `${createdAuthUsers} Auth criados, ${reusedAuthUsers} Auth reutilizados, ${profileCount} profiles salvos, ${predictionCount} palpites importados.`;
+
+  if (failures.length) {
+    redirectBack(path, "error", `${summary} Falhas: ${failures.slice(0, 4).join(" | ")}`);
+  }
+
+  redirectBack(path, "success", summary);
 }
 
 export async function createParticipant(formData: FormData) {

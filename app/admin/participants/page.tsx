@@ -9,8 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { createClient } from "@/lib/supabase/server";
 import {
   createParticipant,
-  recreateAllUserAuthLogins,
-  recreateParticipantAuthLogin,
+  importParticipantsFromImportCodigo,
   resetAllFebajePasswords,
   resetParticipantPassword,
   updateParticipant,
@@ -44,16 +43,16 @@ export default async function ParticipantsAdminPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Reparar logins</CardTitle>
+          <CardTitle>Importar usuários e palpites</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Use “Recriar logins” para usuários que foram montados manualmente no Supabase Auth e não conseguem entrar.
-            Isso cria Auth corretamente via Admin API, preserva profiles e palpites, e define a senha 12345678.
+            Depois de apagar os usuários problemáticos, use este importador. Ele lê o arquivo importarcodigo.txt,
+            cria os logins pelo Supabase Admin API, salva os profiles e importa os palpites da Rodada 1.
           </p>
           <div className="flex flex-wrap gap-2">
-            <form action={recreateAllUserAuthLogins}>
-              <SubmitButton pendingText="Recriando logins...">Recriar logins dos usuários</SubmitButton>
+            <form action={importParticipantsFromImportCodigo}>
+              <SubmitButton pendingText="Importando...">Importar usuários e palpites</SubmitButton>
             </form>
             <form action={resetAllFebajePasswords}>
               <SubmitButton variant="outline" pendingText="Resetando senhas...">
@@ -162,12 +161,6 @@ export default async function ParticipantsAdminPage({
                       <input type="hidden" name="id" value={participant.id} />
                       <SubmitButton size="sm" variant="outline" pendingText="Resetando...">
                         Resetar senha
-                      </SubmitButton>
-                    </form>
-                    <form action={recreateParticipantAuthLogin}>
-                      <input type="hidden" name="id" value={participant.id} />
-                      <SubmitButton size="sm" variant="outline" pendingText="Recriando...">
-                        Recriar login
                       </SubmitButton>
                     </form>
                   </TableCell>
