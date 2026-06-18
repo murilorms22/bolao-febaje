@@ -7,6 +7,7 @@ import {
   getFixturePrediction,
   manualFixtures,
   manualRounds,
+  normalizeFixtureKey,
   scoreFixture,
   type ManualPrediction,
 } from "@/lib/manual-fixtures";
@@ -85,7 +86,9 @@ export default async function DashboardPage({
       .returns<RankingPrediction[]>(),
   ]);
 
-  const predictionsByFixture = new Map((predictions || []).map((prediction) => [prediction.fixture_key, prediction]));
+  const predictionsByFixture = new Map(
+    (predictions || []).map((prediction) => [normalizeFixtureKey(prediction.fixture_key), prediction]),
+  );
   const ranking = calculateRanking(profiles || [], rankingPredictions || []);
 
   return (
@@ -105,7 +108,7 @@ export default async function DashboardPage({
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_280px]">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {visibleFixtures.map((fixture) => {
-            const prediction = getFixturePrediction(fixture, predictionsByFixture.get(fixture.id));
+            const prediction = getFixturePrediction(fixture, predictionsByFixture.get(normalizeFixtureKey(fixture.id)));
             const score = scoreFixture(fixture, prediction);
             const isOpen = !fixture.result;
 

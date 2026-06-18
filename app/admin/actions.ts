@@ -156,7 +156,10 @@ export async function resetParticipantPassword(formData: FormData) {
   const id = text(formData, "id");
 
   const admin = getAdminClientOrRedirect(path);
-  const { error: authError } = await admin.auth.admin.updateUserById(id, { password: "12345678" });
+  const { error: authError } = await admin.auth.admin.updateUserById(id, {
+    password: "12345678",
+    email_confirm: true,
+  });
   if (authError) redirectBack(path, "error", authError.message);
 
   const { error } = await admin.from("profiles").update({ must_change_password: true }).eq("id", id);
@@ -164,6 +167,66 @@ export async function resetParticipantPassword(formData: FormData) {
 
   revalidatePath(path);
   redirectBack(path, "success", "Senha resetada para 12345678.");
+}
+
+export async function resetAllFebajePasswords() {
+  const path = "/admin/participants";
+  await requireAdmin();
+
+  const admin = getAdminClientOrRedirect(path);
+  const { data: profiles, error: profilesError } = await admin
+    .from("profiles")
+    .select("id, username")
+    .order("username");
+
+  if (profilesError) {
+    redirectBack(path, "error", profilesError.message);
+  }
+
+  let resetCount = 0;
+  let profileUpdateCount = 0;
+  const failures: string[] = [];
+
+  for (const profile of profiles || []) {
+    const username = String(profile.username || "").toLowerCase();
+    const userId = String(profile.id);
+
+    const { error } = await admin.auth.admin.updateUserById(userId, {
+      password: "12345678",
+      email_confirm: true,
+    });
+
+    if (error) {
+      failures.push(`${username || profile.id}: ${error.message}`);
+      continue;
+    }
+
+    resetCount += 1;
+
+    const { error: profileError } = await admin
+      .from("profiles")
+      .update({ must_change_password: username !== "murilo" })
+      .eq("id", userId);
+
+    if (profileError) {
+      failures.push(`${username || userId}: ${profileError.message}`);
+      continue;
+    }
+
+    profileUpdateCount += 1;
+  }
+
+  revalidatePath(path);
+
+  if (failures.length) {
+    redirectBack(
+      path,
+      "error",
+      `${resetCount} senhas resetadas, ${profileUpdateCount} perfis atualizados. Falhas: ${failures.slice(0, 3).join(" | ")}`,
+    );
+  }
+
+  redirectBack(path, "success", `${resetCount} senhas resetadas para 12345678 e ${profileUpdateCount} perfis atualizados.`);
 }
 
 export async function createTeam(formData: FormData) {

@@ -7,7 +7,7 @@ import { Select } from "@/components/ui/select";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { createClient } from "@/lib/supabase/server";
-import { createParticipant, resetParticipantPassword, updateParticipant } from "../actions";
+import { createParticipant, resetAllFebajePasswords, resetParticipantPassword, updateParticipant } from "../actions";
 
 type Profile = {
   id: string;
@@ -34,6 +34,23 @@ export default async function ParticipantsAdminPage({
   return (
     <div className="space-y-6">
       <AdminMessage error={params.error} success={params.success} />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Reset geral de senhas</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Reseta todos os usuários vinculados aos perfis para a senha 12345678 usando a Supabase Admin API.
+            O usuário murilo não será marcado para troca obrigatória de senha.
+          </p>
+          <form action={resetAllFebajePasswords}>
+            <SubmitButton variant="outline" pendingText="Resetando senhas...">
+              Resetar senhas para 12345678
+            </SubmitButton>
+          </form>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

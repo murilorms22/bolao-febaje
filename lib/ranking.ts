@@ -1,4 +1,4 @@
-import { manualFixtures, scoreFixture, type ManualPrediction } from "@/lib/manual-fixtures";
+import { manualFixtures, normalizeFixtureKey, scoreFixture, type ManualPrediction } from "@/lib/manual-fixtures";
 
 export type RankingProfile = {
   id: string;
@@ -19,7 +19,7 @@ export function calculateRanking(profiles: RankingProfile[] = [], predictions: R
     if (!predictionsByUser.has(prediction.user_id)) {
       predictionsByUser.set(prediction.user_id, new Map());
     }
-    predictionsByUser.get(prediction.user_id)?.set(prediction.fixture_key, prediction);
+    predictionsByUser.get(prediction.user_id)?.set(normalizeFixtureKey(prediction.fixture_key), prediction);
   }
 
   return profiles
@@ -31,7 +31,7 @@ export function calculateRanking(profiles: RankingProfile[] = [], predictions: R
       let correctOutcomes = 0;
 
       for (const fixture of manualFixtures) {
-        const score = scoreFixture(fixture, userPredictions?.get(fixture.id));
+        const score = scoreFixture(fixture, userPredictions?.get(normalizeFixtureKey(fixture.id)));
         predictionPoints += score.points;
         if (score.status === "exact") exactPredictions += 1;
         if (score.status === "outcome") correctOutcomes += 1;

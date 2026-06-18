@@ -20,6 +20,10 @@ export type FixtureScore = {
   status: "pending" | "exact" | "outcome" | "wrong" | "no-prediction";
 };
 
+export function normalizeFixtureKey(value: string) {
+  return value.trim().toLowerCase();
+}
+
 const flag = (isoCode: string) => `https://flagcdn.com/w80/${isoCode}.png`;
 
 function fixture(

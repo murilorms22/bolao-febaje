@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { manualFixtures } from "@/lib/manual-fixtures";
+import { manualFixtures, normalizeFixtureKey } from "@/lib/manual-fixtures";
 import { createClient } from "@/lib/supabase/server";
 
 function text(formData: FormData, key: string) {
@@ -29,10 +29,10 @@ export async function savePrediction(formData: FormData) {
     redirect("/auth");
   }
 
-  const fixtureKey = text(formData, "fixture_key");
+  const fixtureKey = normalizeFixtureKey(text(formData, "fixture_key"));
   const homeScore = scoreValue(formData, "home_score");
   const awayScore = scoreValue(formData, "away_score");
-  const fixture = manualFixtures.find((item) => item.id === fixtureKey);
+  const fixture = manualFixtures.find((item) => normalizeFixtureKey(item.id) === fixtureKey);
 
   if (!fixture) {
     redirectBack("error", "Jogo inválido.");
