@@ -88,9 +88,10 @@ export default async function DashboardPage({
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {visibleFixtures.map((fixture) => {
-          const prediction = getFixturePrediction(fixture, predictionsByFixture.get(fixture.key));
-          const score = scoreFixture(fixture, prediction);
-          const isOpen = !fixture.result && !fixture.lockedPrediction;
+          const prediction = getFixturePrediction(fixture, predictionsByFixture.get(fixture.key), profile?.username);
+          const score = scoreFixture(fixture, prediction, profile?.username);
+          const hasLockedPrediction = Boolean(profile?.username && fixture.lockedPredictions?.[profile.username.toLowerCase()]);
+          const isOpen = !fixture.result && !hasLockedPrediction;
 
           return (
             <Card key={fixture.key} className={`relative h-full border-2 ${statusStyles[score.status]}`}>

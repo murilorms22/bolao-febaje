@@ -12,7 +12,7 @@ export type ManualFixture = {
   homeFlag: string;
   awayFlag: string;
   result: { home: number; away: number } | null;
-  lockedPrediction?: ManualPrediction;
+  lockedPredictions?: Record<string, ManualPrediction>;
 };
 
 export type FixtureScore = {
@@ -40,8 +40,8 @@ function fixture(
     homeFlag: flag(homeIso),
     awayFlag: flag(awayIso),
     result,
-    lockedPrediction: lockedPrediction
-      ? { fixture_key: key, home_score: lockedPrediction.home, away_score: lockedPrediction.away }
+    lockedPredictions: lockedPrediction
+      ? { murilo: { fixture_key: key, home_score: lockedPrediction.home, away_score: lockedPrediction.away } }
       : undefined,
   };
 }
@@ -75,30 +75,30 @@ export const manualFixtures: ManualFixture[] = [
   fixture("rodada1-gana-panama", round1, "Gana", "Panamá", "gh", "pa", { home: 1, away: 0 }, { home: 1, away: 0 }),
   fixture("rodada1-uzbequistao-colombia", round1, "Uzbequistão", "Colômbia", "uz", "co", { home: 1, away: 3 }, { home: 0, away: 2 }),
 
-  fixture("rodada2-tchequia-africa-do-sul", round2, "Tchéquia", "África do Sul", "cz", "za"),
-  fixture("rodada2-suica-bosnia", round2, "Suíça", "Bósnia", "ch", "ba"),
-  fixture("rodada2-canada-catar", round2, "Canadá", "Catar", "ca", "qa"),
-  fixture("rodada2-mexico-coreia-do-sul", round2, "México", "Coreia do Sul", "mx", "kr"),
-  fixture("rodada2-eua-australia", round2, "EUA", "Austrália", "us", "au"),
-  fixture("rodada2-escocia-marrocos", round2, "Escócia", "Marrocos", "gb-sct", "ma"),
-  fixture("rodada2-brasil-haiti", round2, "Brasil", "Haiti", "br", "ht"),
-  fixture("rodada2-turquia-paraguai", round2, "Turquia", "Paraguai", "tr", "py"),
-  fixture("rodada2-holanda-suecia", round2, "Holanda", "Suécia", "nl", "se"),
-  fixture("rodada2-alemanha-costa-do-marfim", round2, "Alemanha", "Costa do Marfim", "de", "ci"),
-  fixture("rodada2-equador-curacao", round2, "Equador", "Curaçao", "ec", "cw"),
-  fixture("rodada2-tunisia-japao", round2, "Tunísia", "Japão", "tn", "jp"),
-  fixture("rodada2-espanha-arabia-saudita", round2, "Espanha", "Arábia Saudita", "es", "sa"),
-  fixture("rodada2-belgica-ira", round2, "Bélgica", "Irã", "be", "ir"),
-  fixture("rodada2-uruguai-cabo-verde", round2, "Uruguai", "Cabo Verde", "uy", "cv"),
-  fixture("rodada2-nova-zelandia-egito", round2, "Nova Zelândia", "Egito", "nz", "eg"),
-  fixture("rodada2-argentina-austria", round2, "Argentina", "Áustria", "ar", "at"),
-  fixture("rodada2-franca-iraque", round2, "França", "Iraque", "fr", "iq"),
-  fixture("rodada2-noruega-senegal", round2, "Noruega", "Senegal", "no", "sn"),
-  fixture("rodada2-jordania-argelia", round2, "Jordânia", "Argélia", "jo", "dz"),
-  fixture("rodada2-portugal-uzbequistao", round2, "Portugal", "Uzbequistão", "pt", "uz"),
-  fixture("rodada2-inglaterra-gana", round2, "Inglaterra", "Gana", "gb-eng", "gh"),
-  fixture("rodada2-panama-croacia", round2, "Panamá", "Croácia", "pa", "hr"),
-  fixture("rodada2-colombia-rd-congo", round2, "Colômbia", "RD Congo", "co", "cd"),
+  fixture("rodada2-tchequia-africa-do-sul", round2, "Tchéquia", "África do Sul", "cz", "za", null, { home: 0, away: 1 }),
+  fixture("rodada2-suica-bosnia", round2, "Suíça", "Bósnia", "ch", "ba", null, { home: 1, away: 1 }),
+  fixture("rodada2-canada-catar", round2, "Canadá", "Catar", "ca", "qa", null, { home: 1, away: 2 }),
+  fixture("rodada2-mexico-coreia-do-sul", round2, "México", "Coreia do Sul", "mx", "kr", null, { home: 2, away: 2 }),
+  fixture("rodada2-eua-australia", round2, "EUA", "Austrália", "us", "au", null, { home: 2, away: 0 }),
+  fixture("rodada2-escocia-marrocos", round2, "Escócia", "Marrocos", "gb-sct", "ma", null, { home: 1, away: 2 }),
+  fixture("rodada2-brasil-haiti", round2, "Brasil", "Haiti", "br", "ht", null, { home: 3, away: 0 }),
+  fixture("rodada2-turquia-paraguai", round2, "Turquia", "Paraguai", "tr", "py", null, { home: 0, away: 2 }),
+  fixture("rodada2-holanda-suecia", round2, "Holanda", "Suécia", "nl", "se", null, { home: 1, away: 2 }),
+  fixture("rodada2-alemanha-costa-do-marfim", round2, "Alemanha", "Costa do Marfim", "de", "ci", null, { home: 3, away: 1 }),
+  fixture("rodada2-equador-curacao", round2, "Equador", "Curaçao", "ec", "cw", null, { home: 2, away: 0 }),
+  fixture("rodada2-tunisia-japao", round2, "Tunísia", "Japão", "tn", "jp", null, { home: 1, away: 1 }),
+  fixture("rodada2-espanha-arabia-saudita", round2, "Espanha", "Arábia Saudita", "es", "sa", null, { home: 3, away: 0 }),
+  fixture("rodada2-belgica-ira", round2, "Bélgica", "Irã", "be", "ir", null, { home: 2, away: 1 }),
+  fixture("rodada2-uruguai-cabo-verde", round2, "Uruguai", "Cabo Verde", "uy", "cv", null, { home: 1, away: 1 }),
+  fixture("rodada2-nova-zelandia-egito", round2, "Nova Zelândia", "Egito", "nz", "eg", null, { home: 1, away: 1 }),
+  fixture("rodada2-argentina-austria", round2, "Argentina", "Áustria", "ar", "at", null, { home: 2, away: 0 }),
+  fixture("rodada2-franca-iraque", round2, "França", "Iraque", "fr", "iq", null, { home: 4, away: 1 }),
+  fixture("rodada2-noruega-senegal", round2, "Noruega", "Senegal", "no", "sn", null, { home: 2, away: 0 }),
+  fixture("rodada2-jordania-argelia", round2, "Jordânia", "Argélia", "jo", "dz", null, { home: 1, away: 1 }),
+  fixture("rodada2-portugal-uzbequistao", round2, "Portugal", "Uzbequistão", "pt", "uz", null, { home: 2, away: 0 }),
+  fixture("rodada2-inglaterra-gana", round2, "Inglaterra", "Gana", "gb-eng", "gh", null, { home: 3, away: 0 }),
+  fixture("rodada2-panama-croacia", round2, "Panamá", "Croácia", "pa", "hr", null, { home: 0, away: 2 }),
+  fixture("rodada2-colombia-rd-congo", round2, "Colômbia", "RD Congo", "co", "cd", null, { home: 1, away: 0 }),
 ];
 
 export const manualRounds = Array.from(new Set(manualFixtures.map((item) => item.round)));
@@ -109,15 +109,20 @@ function outcome(home: number, away: number) {
   return "draw";
 }
 
-export function getFixturePrediction(fixture: ManualFixture, prediction?: ManualPrediction) {
-  return prediction || fixture.lockedPrediction;
+export function getFixturePrediction(
+  fixture: ManualFixture,
+  prediction?: ManualPrediction,
+  username?: string | null,
+) {
+  return prediction || (username ? fixture.lockedPredictions?.[username.toLowerCase()] : undefined);
 }
 
 export function scoreFixture(
   fixture: ManualFixture,
   prediction?: ManualPrediction,
+  username?: string | null,
 ): FixtureScore {
-  const effectivePrediction = getFixturePrediction(fixture, prediction);
+  const effectivePrediction = getFixturePrediction(fixture, prediction, username);
 
   if (!fixture.result) {
     return { points: 0, status: "pending" };

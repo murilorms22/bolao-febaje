@@ -9,6 +9,7 @@ type Profile = {
   username: string;
   display_name: string | null;
   initial_points: number;
+  role: string;
 };
 
 type PredictionRow = ManualPrediction & {
@@ -20,7 +21,7 @@ export default async function RankingPage() {
   const [{ data: profiles }, { data: predictions }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("id, username, display_name, initial_points")
+      .select("id, username, display_name, initial_points, role")
       .order("display_name")
       .returns<Profile[]>(),
     supabase
@@ -39,6 +40,7 @@ export default async function RankingPage() {
   }
 
   const ranking = (profiles || [])
+    .filter((profile) => profile.role !== "admin" && profile.username !== "muriloadm")
     .map((profile) => {
       const userPredictions = predictionsByUser.get(profile.id);
       let predictionPoints = 0;
@@ -46,7 +48,7 @@ export default async function RankingPage() {
       let correctOutcomes = 0;
 
       for (const fixture of manualFixtures) {
-        const score = scoreFixture(fixture, userPredictions?.get(fixture.key));
+        const score = scoreFixture(fixture, userPredictions?.get(fixture.key), profile.username);
         predictionPoints += score.points;
         if (score.status === "exact") exactPredictions += 1;
         if (score.status === "outcome") correctOutcomes += 1;
