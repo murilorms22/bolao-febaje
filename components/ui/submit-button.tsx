@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
@@ -20,6 +20,15 @@ export function SubmitButton({
   const { pending } = useFormStatus();
   const [clicked, setClicked] = useState(false);
   const isPending = pending || clicked;
+
+  useEffect(() => {
+    if (!clicked || pending) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => setClicked(false), 15000);
+    return () => window.clearTimeout(timeout);
+  }, [clicked, pending]);
 
   return (
     <Button

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { manualFixtures } from "@/lib/manual-fixtures";
 import { createClient } from "@/lib/supabase/server";
 
 function text(formData: FormData, key: string) {
@@ -28,48 +29,31 @@ export async function savePrediction(formData: FormData) {
     redirect("/auth");
   }
 
-  const matchId = text(formData, "match_id");
+  const fixtureKey = text(formData, "fixture_key");
   const homeScore = scoreValue(formData, "home_score");
   const awayScore = scoreValue(formData, "away_score");
+  const fixture = manualFixtures.find((item) => item.key === fixtureKey);
 
-  if (!matchId) {
+  if (!fixture) {
     redirectBack("error", "Jogo inválido.");
+  }
+
+  if (fixture.result) {
+    redirectBack("error", "Este confronto já foi realizado e não aceita novos palpites.");
   }
 
   if (homeScore < 0 || awayScore < 0 || homeScore > 99 || awayScore > 99) {
     redirectBack("error", "O palpite deve ter placares de 0 a 99.");
   }
 
-  const { data: match, error: matchError } = await supabase
-    .from("matches")
-    .select("id, status, match_at, rounds(prediction_deadline)")
-    .eq("id", matchId)
-    .single<{
-      id: string;
-      status: string;
-      match_at: string | null;
-      rounds: { prediction_deadline: string | null } | null;
-    }>();
-
-  if (matchError || !match) {
-    redirectBack("error", "Jogo não encontrado.");
-  }
-
-  const deadline = match.rounds?.prediction_deadline || match.match_at;
-  const isOpen = match.status === "scheduled" && (!deadline || new Date(deadline).getTime() > Date.now());
-
-  if (!isOpen) {
-    redirectBack("error", "O prazo para editar este palpite já encerrou.");
-  }
-
-  const { error } = await supabase.from("predictions").upsert(
+  const { error } = await supabase.from("manual_predictions").upsert(
     {
       user_id: user.id,
-      match_id: matchId,
+      fixture_key: fixtureKey,
       home_score: homeScore,
       away_score: awayScore,
     },
-    { onConflict: "user_id,match_id" },
+    { onConflict: "user_id,fixture_key" },
   );
 
   if (error) {
@@ -77,5 +61,6 @@ export async function savePrediction(formData: FormData) {
   }
 
   revalidatePath("/dashboard");
+  revalidatePath("/ranking");
   redirectBack("success", "Palpite salvo.");
 }

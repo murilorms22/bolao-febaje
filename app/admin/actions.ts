@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { usernameToEmail } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { getCatalogTeam, round2Fixtures, round2StartDateTime } from "@/lib/world-cup-round2";
+import { getCatalogTeam, round2Fixtures, round2StartDateTime, round2Teams } from "@/lib/world-cup-round2";
 
 const phaseWeights: Record<string, number> = {
   group_stage: 1,
@@ -424,8 +424,21 @@ export async function importRound2Fixtures() {
   const supabase = await requireAdmin();
   const startsAt = round2StartDateTime;
   const predictionDeadline = "2026-06-18T12:59";
-  let created = 0;
-  let skipped = 0;
+
+  const teamsPayload = round2Teams.map((team) => ({
+    name: team.name,
+    fifa_code: team.fifaCode,
+    iso_code: team.isoCode,
+    flag_url: team.flagUrl,
+  }));
+
+  const { error: teamsError } = await supabase.from("teams").upsert(teamsPayload, {
+    onConflict: "fifa_code",
+  });
+
+  if (teamsError) {
+    redirectBack(path, "error", teamsError.message);
+  }
 
   const { data: existingRound } = await supabase
     .from("rounds")
@@ -474,25 +487,43 @@ export async function importRound2Fixtures() {
       .eq("id", roundId);
   }
 
-  for (const [homeTeamName, awayTeamName] of round2Fixtures) {
-    try {
-      const homeTeamId = await ensureCatalogTeam(supabase, homeTeamName);
-      const awayTeamId = await ensureCatalogTeam(supabase, awayTeamName);
+  const { data: teams, error: teamsReadError } = await supabase
+    .from("teams")
+    .select("id, name")
+    .in(
+      "fifa_code",
+      round2Teams.map((team) => team.fifaCode),
+    );
 
-      const { data: existingMatch } = await supabase
-        .from("matches")
-        .select("id")
-        .eq("round_id", roundId)
-        .eq("home_team_id", homeTeamId)
-        .eq("away_team_id", awayTeamId)
-        .maybeSingle();
+  if (teamsReadError || !teams) {
+    redirectBack(path, "error", teamsReadError?.message || "Não foi possível carregar as seleções.");
+  }
 
-      if (existingMatch) {
-        skipped += 1;
-        continue;
-      }
+  const teamIdsByName = new Map(teams.map((team) => [String(team.name), String(team.id)]));
 
-      const { error } = await supabase.from("matches").insert({
+  const { data: existingMatches, error: existingMatchesError } = await supabase
+    .from("matches")
+    .select("home_team_id, away_team_id")
+    .eq("round_id", roundId);
+
+  if (existingMatchesError) {
+    redirectBack(path, "error", existingMatchesError.message);
+  }
+
+  const existingKeys = new Set(
+    (existingMatches || []).map((match) => `${match.home_team_id}:${match.away_team_id}`),
+  );
+
+  const matchesPayload = round2Fixtures.flatMap(([homeTeamName, awayTeamName]) => {
+    const homeTeamId = teamIdsByName.get(homeTeamName);
+    const awayTeamId = teamIdsByName.get(awayTeamName);
+
+    if (!homeTeamId || !awayTeamId || existingKeys.has(`${homeTeamId}:${awayTeamId}`)) {
+      return [];
+    }
+
+    return [
+      {
         round_id: roundId,
         home_team_id: homeTeamId,
         away_team_id: awayTeamId,
@@ -501,21 +532,23 @@ export async function importRound2Fixtures() {
         phase: "group_stage",
         weight: 1,
         result_confirmed: false,
-      });
+      },
+    ];
+  });
 
-      if (error) {
-        throw new Error(error.message);
-      }
+  if (matchesPayload.length) {
+    const { error: matchesError } = await supabase.from("matches").insert(matchesPayload);
 
-      created += 1;
-    } catch (error) {
-      redirectBack(path, "error", error instanceof Error ? error.message : "Erro ao importar jogos.");
+    if (matchesError) {
+      redirectBack(path, "error", matchesError.message);
     }
   }
 
+  const skipped = round2Fixtures.length - matchesPayload.length;
+
   revalidatePath(path);
   revalidatePath("/dashboard");
-  redirectBack(path, "success", `Rodada 2 importada: ${created} criados, ${skipped} já existiam.`);
+  redirectBack(path, "success", `Rodada 2 importada: ${matchesPayload.length} criados, ${skipped} já existiam.`);
 }
 
 export async function updateMatch(formData: FormData) {
