@@ -1,5 +1,6 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -61,6 +62,87 @@ function getAdminClientOrRedirect(path: string) {
   } catch (error) {
     redirectBack(path, "error", error instanceof Error ? error.message : "Configure a service role.");
   }
+}
+
+type RepairableProfile = {
+  id: string;
+  username: string;
+  display_name: string | null;
+  role: string;
+  initial_points: number;
+  must_change_password: boolean;
+};
+
+async function recreateAuthForProfile(admin: ReturnType<typeof createAdminClient>, profile: RepairableProfile) {
+  const oldUserId = String(profile.id);
+  const username = String(profile.username || "").trim().toLowerCase();
+  const email = usernameToEmail(username);
+  const temporaryUsername = `repair-${randomUUID()}`;
+  const temporaryEmail = `${temporaryUsername}@febaje.local`;
+  const archivedEmail = `archived-${oldUserId}-${username}@febaje.local`;
+
+  if (!username) {
+    throw new Error("Profile sem username.");
+  }
+
+  await admin.auth.admin.updateUserById(oldUserId, {
+    email: archivedEmail,
+    user_metadata: { archived_from_username: username },
+  });
+
+  const { data: createdUser, error: createError } = await admin.auth.admin.createUser({
+    email: temporaryEmail,
+    password: "12345678",
+    email_confirm: true,
+    user_metadata: {
+      username: temporaryUsername,
+      display_name: profile.display_name || username,
+    },
+  });
+
+  if (createError || !createdUser.user) {
+    throw new Error(createError?.message || "Não foi possível criar o novo usuário Auth.");
+  }
+
+  const newUserId = createdUser.user.id;
+
+  const { error: deleteTemporaryProfileError } = await admin.from("profiles").delete().eq("id", newUserId);
+
+  if (deleteTemporaryProfileError) {
+    throw new Error(deleteTemporaryProfileError.message);
+  }
+
+  const { error: moveProfileError } = await admin
+    .from("profiles")
+    .update({
+      id: newUserId,
+      username,
+      display_name: profile.display_name,
+      role: profile.role,
+      initial_points: profile.initial_points,
+      must_change_password: username !== "murilo",
+    })
+    .eq("id", oldUserId);
+
+  if (moveProfileError) {
+    throw new Error(moveProfileError.message);
+  }
+
+  const { error: finalizeAuthError } = await admin.auth.admin.updateUserById(newUserId, {
+    email,
+    password: "12345678",
+    email_confirm: true,
+    user_metadata: {
+      username,
+      display_name: profile.display_name || username,
+    },
+  });
+
+  if (finalizeAuthError) {
+    throw new Error(finalizeAuthError.message);
+  }
+
+  return newUserId;
 }
 
 export async function createParticipant(formData: FormData) {
@@ -227,6 +309,75 @@ export async function resetAllFebajePasswords() {
   }
 
   redirectBack(path, "success", `${resetCount} senhas resetadas para 12345678 e ${profileUpdateCount} perfis atualizados.`);
+}
+
+export async function recreateParticipantAuthLogin(formData: FormData) {
+  const path = "/admin/participants";
+  await requireAdmin();
+  const id = text(formData, "id");
+  const admin = getAdminClientOrRedirect(path);
+
+  const { data: profile, error } = await admin
+    .from("profiles")
+    .select("id, username, display_name, role, initial_points, must_change_password")
+    .eq("id", id)
+    .single<RepairableProfile>();
+
+  if (error || !profile) {
+    redirectBack(path, "error", error?.message || "Profile não encontrado.");
+  }
+
+  try {
+    await recreateAuthForProfile(admin, profile);
+  } catch (repairError) {
+    redirectBack(path, "error", repairError instanceof Error ? repairError.message : "Erro ao recriar login.");
+  }
+
+  revalidatePath(path);
+  revalidatePath("/dashboard");
+  revalidatePath("/ranking");
+  redirectBack(path, "success", `Login de ${profile.username} recriado com senha 12345678.`);
+}
+
+export async function recreateAllUserAuthLogins() {
+  const path = "/admin/participants";
+  await requireAdmin();
+  const admin = getAdminClientOrRedirect(path);
+
+  const { data: profiles, error } = await admin
+    .from("profiles")
+    .select("id, username, display_name, role, initial_points, must_change_password")
+    .eq("role", "user")
+    .order("username")
+    .returns<RepairableProfile[]>();
+
+  if (error) {
+    redirectBack(path, "error", error.message);
+  }
+
+  let repaired = 0;
+  const failures: string[] = [];
+
+  for (const profile of profiles || []) {
+    try {
+      await recreateAuthForProfile(admin, profile);
+      repaired += 1;
+    } catch (repairError) {
+      failures.push(
+        `${profile.username}: ${repairError instanceof Error ? repairError.message : "erro desconhecido"}`,
+      );
+    }
+  }
+
+  revalidatePath(path);
+  revalidatePath("/dashboard");
+  revalidatePath("/ranking");
+
+  if (failures.length) {
+    redirectBack(path, "error", `${repaired} logins recriados. Falhas: ${failures.slice(0, 3).join(" | ")}`);
+  }
+
+  redirectBack(path, "success", `${repaired} logins recriados com senha 12345678.`);
 }
 
 export async function createTeam(formData: FormData) {

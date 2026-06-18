@@ -7,7 +7,14 @@ import { Select } from "@/components/ui/select";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { createClient } from "@/lib/supabase/server";
-import { createParticipant, resetAllFebajePasswords, resetParticipantPassword, updateParticipant } from "../actions";
+import {
+  createParticipant,
+  recreateAllUserAuthLogins,
+  recreateParticipantAuthLogin,
+  resetAllFebajePasswords,
+  resetParticipantPassword,
+  updateParticipant,
+} from "../actions";
 
 type Profile = {
   id: string;
@@ -37,18 +44,23 @@ export default async function ParticipantsAdminPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Reset geral de senhas</CardTitle>
+          <CardTitle>Reparar logins</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Reseta todos os usuários vinculados aos perfis para a senha 12345678 usando a Supabase Admin API.
-            O usuário murilo não será marcado para troca obrigatória de senha.
+            Use “Recriar logins” para usuários que foram montados manualmente no Supabase Auth e não conseguem entrar.
+            Isso cria Auth corretamente via Admin API, preserva profiles e palpites, e define a senha 12345678.
           </p>
-          <form action={resetAllFebajePasswords}>
-            <SubmitButton variant="outline" pendingText="Resetando senhas...">
-              Resetar senhas para 12345678
-            </SubmitButton>
-          </form>
+          <div className="flex flex-wrap gap-2">
+            <form action={recreateAllUserAuthLogins}>
+              <SubmitButton pendingText="Recriando logins...">Recriar logins dos usuários</SubmitButton>
+            </form>
+            <form action={resetAllFebajePasswords}>
+              <SubmitButton variant="outline" pendingText="Resetando senhas...">
+                Resetar senhas para 12345678
+              </SubmitButton>
+            </form>
+          </div>
         </CardContent>
       </Card>
 
@@ -150,6 +162,12 @@ export default async function ParticipantsAdminPage({
                       <input type="hidden" name="id" value={participant.id} />
                       <SubmitButton size="sm" variant="outline" pendingText="Resetando...">
                         Resetar senha
+                      </SubmitButton>
+                    </form>
+                    <form action={recreateParticipantAuthLogin}>
+                      <input type="hidden" name="id" value={participant.id} />
+                      <SubmitButton size="sm" variant="outline" pendingText="Recriando...">
+                        Recriar login
                       </SubmitButton>
                     </form>
                   </TableCell>
