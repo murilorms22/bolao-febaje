@@ -1,20 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { manualFixtures, scoreFixture, type ManualPrediction } from "@/lib/manual-fixtures";
+import { calculateRanking, type RankingPrediction, type RankingProfile } from "@/lib/ranking";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
-
-type Profile = {
-  id: string;
-  username: string;
-  display_name: string | null;
-  initial_points: number;
-  role: string;
-};
-
-type PredictionRow = ManualPrediction & {
-  user_id: string;
-};
 
 export default async function RankingPage() {
   const supabase = await createClient();
@@ -23,52 +11,14 @@ export default async function RankingPage() {
       .from("profiles")
       .select("id, username, display_name, initial_points, role")
       .order("display_name")
-      .returns<Profile[]>(),
+      .returns<RankingProfile[]>(),
     supabase
       .from("manual_predictions")
       .select("user_id, fixture_key, home_score, away_score")
-      .returns<PredictionRow[]>(),
+      .returns<RankingPrediction[]>(),
   ]);
 
-  const predictionsByUser = new Map<string, Map<string, ManualPrediction>>();
-
-  for (const prediction of predictions || []) {
-    if (!predictionsByUser.has(prediction.user_id)) {
-      predictionsByUser.set(prediction.user_id, new Map());
-    }
-    predictionsByUser.get(prediction.user_id)?.set(prediction.fixture_key, prediction);
-  }
-
-  const ranking = (profiles || [])
-    .filter((profile) => profile.role !== "admin" && profile.username !== "muriloadm")
-    .map((profile) => {
-      const userPredictions = predictionsByUser.get(profile.id);
-      let predictionPoints = 0;
-      let exactPredictions = 0;
-      let correctOutcomes = 0;
-
-      for (const fixture of manualFixtures) {
-        const score = scoreFixture(fixture, userPredictions?.get(fixture.key), profile.username);
-        predictionPoints += score.points;
-        if (score.status === "exact") exactPredictions += 1;
-        if (score.status === "outcome") correctOutcomes += 1;
-      }
-
-      return {
-        id: profile.id,
-        name: profile.display_name || profile.username,
-        initialPoints: Number(profile.initial_points || 0),
-        predictionPoints,
-        totalPoints: Number(profile.initial_points || 0) + predictionPoints,
-        exactPredictions,
-        correctOutcomes,
-      };
-    })
-    .sort((a, b) => {
-      if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
-      if (b.exactPredictions !== a.exactPredictions) return b.exactPredictions - a.exactPredictions;
-      return b.correctOutcomes - a.correctOutcomes;
-    });
+  const ranking = calculateRanking(profiles || [], predictions || []);
 
   return (
     <div className="space-y-6">
