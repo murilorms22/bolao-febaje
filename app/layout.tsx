@@ -21,7 +21,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <div className="min-h-screen bg-background">
           <SiteHeader />
-          <main className="mx-auto w-full max-w-6xl px-4 py-8">{children}</main>
+          <main className="mx-auto w-full max-w-6xl px-3 py-5 sm:px-4 sm:py-8">{children}</main>
         </div>
       </body>
     </html>

@@ -72,9 +72,32 @@ export default async function RankingPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Ranking</h1>
-        <p className="text-muted-foreground">Classificação recalculada a partir dos palpites e resultados definidos no código.</p>
+        <p className="text-sm text-muted-foreground sm:text-base">
+          Classificação recalculada a partir dos palpites e resultados definidos no código.
+        </p>
       </div>
-      <Card>
+
+      <div className="space-y-3 md:hidden">
+        {ranking.map((row, index) => (
+          <Card key={row.id}>
+            <CardContent className="flex items-center justify-between gap-3 p-4">
+              <div className="min-w-0">
+                <p className="text-sm text-muted-foreground">#{index + 1}</p>
+                <p className="truncate font-medium">{row.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {row.exactPredictions} exatos · {row.correctOutcomes} resultados
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xl font-semibold">{row.totalPoints}</p>
+                <p className="text-xs text-muted-foreground">pts</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="hidden md:block">
         <CardHeader>
           <CardTitle>Participantes</CardTitle>
         </CardHeader>

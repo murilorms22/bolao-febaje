@@ -3,9 +3,16 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { manualFixtures, scoreFixture, type ManualPrediction } from "@/lib/manual-fixtures";
+import {
+  getFixturePrediction,
+  manualFixtures,
+  manualRounds,
+  scoreFixture,
+  type ManualPrediction,
+} from "@/lib/manual-fixtures";
 import { createClient } from "@/lib/supabase/server";
 import { savePrediction } from "./actions";
+import { RoundSelect } from "./round-select";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +40,7 @@ const statusText = {
 function Flag({ src, name }: { src: string; name: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
-    <img className="h-8 w-11 rounded border object-cover" src={src} alt={`Bandeira ${name}`} />
+    <img className="h-7 w-10 shrink-0 rounded border object-cover sm:h-8 sm:w-11" src={src} alt={`Bandeira ${name}`} />
   );
 }
 
@@ -43,6 +50,12 @@ export default async function DashboardPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
+  const selectedRound = typeof params.round === "string" ? params.round : manualRounds[manualRounds.length - 1];
+  const visibleFixtures =
+    selectedRound && selectedRound !== "all"
+      ? manualFixtures.filter((fixture) => fixture.round === selectedRound)
+      : manualFixtures;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -60,50 +73,56 @@ export default async function DashboardPage({
   const predictionsByFixture = new Map((predictions || []).map((prediction) => [prediction.fixture_key, prediction]));
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Palpites</h1>
-        <p className="text-muted-foreground">
-          Bem-vindo, {profile?.display_name || profile?.username || "participante"}.
-        </p>
+    <div className="space-y-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-semibold tracking-tight">Palpites</h1>
+          <p className="text-sm text-muted-foreground sm:text-base">
+            Bem-vindo, {profile?.display_name || profile?.username || "participante"}.
+          </p>
+        </div>
+        <RoundSelect rounds={manualRounds} />
       </div>
 
       <AdminMessage error={params.error || predictionsError?.message} success={params.success} />
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        {manualFixtures.map((fixture) => {
-          const prediction = predictionsByFixture.get(fixture.key);
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        {visibleFixtures.map((fixture) => {
+          const prediction = getFixturePrediction(fixture, predictionsByFixture.get(fixture.key));
           const score = scoreFixture(fixture, prediction);
-          const isOpen = !fixture.result;
+          const isOpen = !fixture.result && !fixture.lockedPrediction;
 
           return (
             <Card key={fixture.key} className={`relative h-full border-2 ${statusStyles[score.status]}`}>
-              <Badge className="absolute right-2 top-2" variant="outline">
+              <Badge className="absolute right-2 top-2 text-[11px]" variant="outline">
                 +{score.points}
               </Badge>
-              <CardHeader className="space-y-3 pb-3">
-                <CardDescription className="pr-12 text-xs">{fixture.round}</CardDescription>
-                <CardTitle className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
-                  <span className="flex min-w-0 flex-col items-center gap-2 text-center">
+              <CardHeader className="space-y-2 p-3 pb-2 sm:space-y-3 sm:p-4 sm:pb-3">
+                <CardDescription className="pr-12 text-[11px] leading-tight sm:text-xs">{fixture.round}</CardDescription>
+                <CardTitle className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-xs sm:text-sm">
+                  <span className="flex min-w-0 items-center gap-2 sm:flex-col sm:text-center">
                     <Flag src={fixture.homeFlag} name={fixture.home} />
-                    <span className="break-words leading-tight">{fixture.home}</span>
+                    <span className="min-w-0 break-words leading-tight">{fixture.home}</span>
                   </span>
                   <span className="text-muted-foreground">x</span>
-                  <span className="flex min-w-0 flex-col items-center gap-2 text-center">
+                  <span className="flex min-w-0 flex-row-reverse items-center gap-2 text-right sm:flex-col sm:text-center">
                     <Flag src={fixture.awayFlag} name={fixture.away} />
-                    <span className="break-words leading-tight">{fixture.away}</span>
+                    <span className="min-w-0 break-words leading-tight">{fixture.away}</span>
                   </span>
                 </CardTitle>
-                <div className="text-center text-xl font-semibold">
+                <div className="text-center text-lg font-semibold sm:text-xl">
                   {fixture.result ? `${fixture.result.home}x${fixture.result.away}` : "?x?"}
                 </div>
-                <p className="min-h-8 text-center text-xs text-muted-foreground">{statusText[score.status]}</p>
+                <p className="min-h-5 text-center text-[11px] text-muted-foreground sm:min-h-8 sm:text-xs">
+                  {statusText[score.status]}
+                </p>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-3 pt-0 sm:p-4 sm:pt-0">
                 <form action={savePrediction} className="space-y-3">
                   <input type="hidden" name="fixture_key" value={fixture.key} />
-                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
                     <Input
+                      className="h-11 text-center text-base"
                       aria-label={`Palpite ${fixture.home}`}
                       name="home_score"
                       type="number"
@@ -115,6 +134,7 @@ export default async function DashboardPage({
                     />
                     <span className="text-muted-foreground">x</span>
                     <Input
+                      className="h-11 text-center text-base"
                       aria-label={`Palpite ${fixture.away}`}
                       name="away_score"
                       type="number"
@@ -125,7 +145,7 @@ export default async function DashboardPage({
                       required
                     />
                   </div>
-                  <SubmitButton className="w-full" size="sm" disabled={!isOpen} pendingText="Salvando...">
+                  <SubmitButton className="h-10 w-full" size="sm" disabled={!isOpen} pendingText="Salvando...">
                     {prediction ? "Editar" : "Salvar"}
                   </SubmitButton>
                 </form>

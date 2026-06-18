@@ -20,7 +20,7 @@ export function SignOutButton() {
   }
 
   return (
-    <Button variant="ghost" size="sm" onClick={signOut} disabled={isLoading}>
+    <Button className="w-full sm:w-auto" variant="ghost" size="sm" onClick={signOut} disabled={isLoading}>
       {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogOut className="h-4 w-4" />}
       {isLoading ? "Saindo..." : "Sair"}
     </Button>
