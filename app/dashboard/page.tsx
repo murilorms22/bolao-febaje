@@ -175,12 +175,12 @@ export default async function DashboardPage({
           })}
         </div>
 
-        <aside className="xl:sticky xl:top-4 xl:self-start">
-          <Card>
+        <aside className="hidden xl:sticky xl:top-4 xl:block xl:self-start">
+          <Card className="max-h-[calc(100vh-7rem)] overflow-hidden">
             <CardHeader className="p-4 pb-2">
               <CardTitle>Ranking</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 p-4 pt-2">
+            <CardContent className="max-h-[calc(100vh-12rem)] space-y-3 overflow-y-auto p-4 pt-2">
               {ranking.map((row, index) => (
                 <div key={row.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2">
                   <div className="min-w-0">
