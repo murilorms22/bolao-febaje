@@ -5,10 +5,12 @@ import { Input } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit-button";
 import {
   getFixturePrediction,
+  applyManualResults,
   manualFixtures,
   manualRounds,
   normalizeFixtureKey,
   scoreFixture,
+  type ManualFixtureResult,
   type ManualPrediction,
 } from "@/lib/manual-fixtures";
 import { calculateRanking, type RankingPrediction, type RankingProfile } from "@/lib/ranking";
@@ -53,11 +55,6 @@ export default async function DashboardPage({
 }) {
   const params = await searchParams;
   const selectedRound = typeof params.round === "string" ? params.round : manualRounds[manualRounds.length - 1];
-  const visibleFixtures =
-    selectedRound && selectedRound !== "all"
-      ? manualFixtures.filter((fixture) => fixture.round === selectedRound)
-      : manualFixtures;
-
   const supabase = await createClient();
   const {
     data: { user },
@@ -68,6 +65,7 @@ export default async function DashboardPage({
     { data: predictions, error: predictionsError },
     { data: profiles },
     { data: rankingPredictions },
+    { data: manualResults },
   ] = await Promise.all([
     supabase.from("profiles").select("username, display_name").eq("id", user?.id).single<Profile>(),
     supabase
@@ -84,12 +82,21 @@ export default async function DashboardPage({
       .from("manual_predictions")
       .select("user_id, fixture_key, home_score, away_score")
       .returns<RankingPrediction[]>(),
+    supabase
+      .from("manual_fixture_results")
+      .select("fixture_key, home_score, away_score")
+      .returns<ManualFixtureResult[]>(),
   ]);
 
+  const fixturesWithResults = applyManualResults(manualFixtures, manualResults || []);
+  const visibleFixtures =
+    selectedRound && selectedRound !== "all"
+      ? fixturesWithResults.filter((fixture) => fixture.round === selectedRound)
+      : fixturesWithResults;
   const predictionsByFixture = new Map(
     (predictions || []).map((prediction) => [normalizeFixtureKey(prediction.fixture_key), prediction]),
   );
-  const ranking = calculateRanking(profiles || [], rankingPredictions || []);
+  const ranking = calculateRanking(profiles || [], rankingPredictions || [], fixturesWithResults);
 
   return (
     <div className="space-y-5">

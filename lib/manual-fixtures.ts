@@ -20,6 +20,12 @@ export type FixtureScore = {
   status: "pending" | "exact" | "outcome" | "wrong" | "no-prediction";
 };
 
+export type ManualFixtureResult = {
+  fixture_key: string;
+  home_score: number;
+  away_score: number;
+};
+
 export function normalizeFixtureKey(value: string) {
   return value.trim().toLowerCase();
 }
@@ -104,6 +110,20 @@ export const manualFixtures: ManualFixture[] = [
 ];
 
 export const manualRounds = Array.from(new Set(manualFixtures.map((item) => item.round)));
+
+export function applyManualResults(fixtures: ManualFixture[], results: ManualFixtureResult[] = []) {
+  const resultsByFixture = new Map(
+    results.map((result) => [
+      normalizeFixtureKey(result.fixture_key),
+      { home: Number(result.home_score), away: Number(result.away_score) },
+    ]),
+  );
+
+  return fixtures.map((fixture) => ({
+    ...fixture,
+    result: resultsByFixture.get(normalizeFixtureKey(fixture.id)) ?? fixture.result,
+  }));
+}
 
 function outcome(home: number, away: number) {
   if (home > away) return "home";

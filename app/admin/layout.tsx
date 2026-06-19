@@ -25,7 +25,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="space-y-6">
       <div className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight">Painel Administrativo</h1>
-        <p className="text-sm text-muted-foreground">Gerencie usuários e ajustes manuais de pontuação.</p>
+        <p className="text-sm text-muted-foreground">Gerencie usuários, placares e ajustes manuais de pontuação.</p>
       </div>
       <AdminNav />
       {children}

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 
 const links = [
   { href: "/admin/participants", label: "Participantes" },
+  { href: "/admin/results", label: "Placares" },
   { href: "/admin/initial-points", label: "Pontuação inicial" },
 ];
 

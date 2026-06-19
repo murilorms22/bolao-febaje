@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 import {
   createParticipant,
   importParticipantsFromImportCodigo,
+  importRound2PredictionsFromCode,
   resetAllFebajePasswords,
   resetParticipantPassword,
   updateParticipant,
@@ -53,6 +54,11 @@ export default async function ParticipantsAdminPage({
           <div className="flex flex-wrap gap-2">
             <form action={importParticipantsFromImportCodigo}>
               <SubmitButton pendingText="Importando...">Importar usuários e palpites</SubmitButton>
+            </form>
+            <form action={importRound2PredictionsFromCode}>
+              <SubmitButton variant="outline" pendingText="Importando Rodada 2...">
+                Importar palpites Rodada 2
+              </SubmitButton>
             </form>
             <form action={resetAllFebajePasswords}>
               <SubmitButton variant="outline" pendingText="Resetando senhas...">

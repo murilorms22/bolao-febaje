@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import { join } from "path";
 
 import { usernameToEmail } from "@/lib/auth";
+import { manualFixtures, normalizeFixtureKey } from "@/lib/manual-fixtures";
+import { rodada2Predictions } from "@/lib/rodada2-predictions";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getCatalogTeam, round2Fixtures, round2StartDateTime, round2Teams } from "@/lib/world-cup-round2";
@@ -369,6 +371,138 @@ export async function importParticipantsFromImportCodigo() {
   }
 
   redirectBack(path, "success", summary);
+}
+
+export async function importRound2PredictionsFromCode() {
+  const path = "/admin/participants";
+  await requireAdmin();
+  const admin = getAdminClientOrRedirect(path);
+  const validFixtureKeys = new Set(manualFixtures.map((fixture) => normalizeFixtureKey(fixture.id)));
+  const usernames = Array.from(new Set(rodada2Predictions.map((item) => item.username.trim().toLowerCase())));
+
+  const { data: profiles, error: profilesError } = await admin
+    .from("profiles")
+    .select("id, username")
+    .in("username", usernames);
+
+  if (profilesError) {
+    redirectBack(path, "error", profilesError.message);
+  }
+
+  const profileIdsByUsername = new Map(
+    (profiles || []).map((profile) => [String(profile.username).trim().toLowerCase(), String(profile.id)]),
+  );
+  const rows: { user_id: string; fixture_key: string; home_score: number; away_score: number }[] = [];
+  const failures: string[] = [];
+
+  for (const userPredictions of rodada2Predictions) {
+    const username = userPredictions.username.trim().toLowerCase();
+    const userId = profileIdsByUsername.get(username);
+
+    if (!userId) {
+      failures.push(`${username}: participante nao encontrado.`);
+      continue;
+    }
+
+    for (const prediction of userPredictions.predictions) {
+      const fixtureKey = normalizeFixtureKey(prediction.fixtureKey);
+
+      if (username === "mateus" && fixtureKey === "rodada2-tchequia-africa-do-sul") {
+        continue;
+      }
+
+      if (!validFixtureKeys.has(fixtureKey)) {
+        failures.push(`${username}: fixture invalido ${prediction.fixtureKey}.`);
+        continue;
+      }
+
+      rows.push({
+        user_id: userId,
+        fixture_key: fixtureKey,
+        home_score: prediction.homeScore,
+        away_score: prediction.awayScore,
+      });
+    }
+  }
+
+  let imported = 0;
+
+  for (let index = 0; index < rows.length; index += 400) {
+    const chunk = rows.slice(index, index + 400);
+    const { error } = await admin.from("manual_predictions").upsert(chunk, {
+      onConflict: "user_id,fixture_key",
+    });
+
+    if (error) {
+      failures.push(`palpites ${index + 1}-${index + chunk.length}: ${error.message}`);
+      continue;
+    }
+
+    imported += chunk.length;
+  }
+
+  const mateusId = profileIdsByUsername.get("mateus");
+
+  if (mateusId) {
+    const { error } = await admin
+      .from("manual_predictions")
+      .delete()
+      .eq("user_id", mateusId)
+      .eq("fixture_key", "rodada2-tchequia-africa-do-sul");
+
+    if (error) {
+      failures.push(`mateus: ${error.message}`);
+    }
+  }
+
+  revalidatePath(path);
+  revalidatePath("/dashboard");
+  revalidatePath("/ranking");
+
+  const summary = `${imported} palpites da Rodada 2 importados/atualizados.`;
+
+  if (failures.length) {
+    redirectBack(path, "error", `${summary} Falhas: ${failures.slice(0, 5).join(" | ")}`);
+  }
+
+  redirectBack(path, "success", summary);
+}
+
+export async function saveManualFixtureResult(formData: FormData) {
+  const path = "/admin/results";
+  await requireAdmin();
+
+  const fixtureKey = normalizeFixtureKey(text(formData, "fixture_key"));
+  const homeScore = numberValue(formData, "home_score");
+  const awayScore = numberValue(formData, "away_score");
+
+  if (!manualFixtures.some((fixture) => normalizeFixtureKey(fixture.id) === fixtureKey)) {
+    redirectBack(path, "error", "Jogo não encontrado nos fixtures hardcoded.");
+  }
+
+  if (!Number.isInteger(homeScore) || !Number.isInteger(awayScore) || homeScore < 0 || awayScore < 0) {
+    redirectBack(path, "error", "Informe placares válidos.");
+  }
+
+  const admin = getAdminClientOrRedirect(path);
+  const { error } = await admin.from("manual_fixture_results").upsert(
+    {
+      fixture_key: fixtureKey,
+      home_score: homeScore,
+      away_score: awayScore,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "fixture_key" },
+  );
+
+  if (error) {
+    redirectBack(path, "error", error.message);
+  }
+
+  revalidatePath(path);
+  revalidatePath("/dashboard");
+  revalidatePath("/ranking");
+  redirectBack(path, "success", "Placar salvo. A pontuação já foi recalculada.");
 }
 
 export async function createParticipant(formData: FormData) {

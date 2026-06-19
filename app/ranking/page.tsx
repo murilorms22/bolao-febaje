@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { applyManualResults, manualFixtures, type ManualFixtureResult } from "@/lib/manual-fixtures";
 import { calculateRanking, type RankingPrediction, type RankingProfile } from "@/lib/ranking";
 import { createClient } from "@/lib/supabase/server";
 
@@ -6,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export default async function RankingPage() {
   const supabase = await createClient();
-  const [{ data: profiles }, { data: predictions }] = await Promise.all([
+  const [{ data: profiles }, { data: predictions }, { data: manualResults }] = await Promise.all([
     supabase
       .from("profiles")
       .select("id, username, display_name, initial_points, role")
@@ -16,9 +17,14 @@ export default async function RankingPage() {
       .from("manual_predictions")
       .select("user_id, fixture_key, home_score, away_score")
       .returns<RankingPrediction[]>(),
+    supabase
+      .from("manual_fixture_results")
+      .select("fixture_key, home_score, away_score")
+      .returns<ManualFixtureResult[]>(),
   ]);
 
-  const ranking = calculateRanking(profiles || [], predictions || []);
+  const fixturesWithResults = applyManualResults(manualFixtures, manualResults || []);
+  const ranking = calculateRanking(profiles || [], predictions || [], fixturesWithResults);
 
   return (
     <div className="space-y-6">
