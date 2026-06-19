@@ -27,7 +27,7 @@ export function SiteHeader() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4">
           <Link href="/dashboard" className="flex min-w-0 items-center gap-3" onClick={() => setIsOpen(false)}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="h-11 w-11 shrink-0 object-contain" src="/copa2026.png" alt="Copa 2026" />
+            <img className="h-11 w-11 shrink-0 object-contain" src="/copa20262.png" alt="Copa 2026" />
             <span className="min-w-0 space-y-1">
               <p className="text-xl font-bold tracking-tight">FEBAJE</p>
               <p className="truncate text-sm text-muted-foreground">Bolão da Copa do Mundo 2026</p>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
@@ -19,6 +20,17 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body className={inter.className}>
+        <Script id="theme-default" strategy="beforeInteractive">
+          {`
+            try {
+              if (localStorage.getItem("febaje-theme") !== "light") {
+                document.documentElement.classList.add("dark");
+              }
+            } catch (_) {
+              document.documentElement.classList.add("dark");
+            }
+          `}
+        </Script>
         <div className="min-h-screen bg-background">
           <SiteHeader />
           <main className="mx-auto w-full max-w-6xl px-3 py-5 sm:px-4 sm:py-8 md:pb-28">{children}</main>

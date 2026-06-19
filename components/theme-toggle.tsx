@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function ThemeToggle({ className }: { className?: string }) {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
     const storedTheme = window.localStorage.getItem("febaje-theme");
-    const shouldUseDark = storedTheme === "dark";
+    const shouldUseDark = storedTheme !== "light";
 
     document.documentElement.classList.toggle("dark", shouldUseDark);
     setIsDark(shouldUseDark);
