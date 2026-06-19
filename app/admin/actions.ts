@@ -476,8 +476,14 @@ export async function saveManualFixtureResult(formData: FormData) {
   const homeScore = numberValue(formData, "home_score");
   const awayScore = numberValue(formData, "away_score");
 
-  if (!manualFixtures.some((fixture) => normalizeFixtureKey(fixture.id) === fixtureKey)) {
+  const fixture = manualFixtures.find((item) => normalizeFixtureKey(item.id) === fixtureKey);
+
+  if (!fixture) {
     redirectBack(path, "error", "Jogo não encontrado nos fixtures hardcoded.");
+  }
+
+  if (fixture.result) {
+    redirectBack(path, "error", "Este placar já está marcado como correto e não pode ser alterado.");
   }
 
   if (!Number.isInteger(homeScore) || !Number.isInteger(awayScore) || homeScore < 0 || awayScore < 0) {
@@ -485,6 +491,20 @@ export async function saveManualFixtureResult(formData: FormData) {
   }
 
   const admin = getAdminClientOrRedirect(path);
+  const { data: existingResult, error: existingResultError } = await admin
+    .from("manual_fixture_results")
+    .select("fixture_key")
+    .eq("fixture_key", fixtureKey)
+    .maybeSingle();
+
+  if (existingResultError) {
+    redirectBack(path, "error", existingResultError.message);
+  }
+
+  if (existingResult) {
+    redirectBack(path, "error", "Este placar já está salvo e não pode ser alterado.");
+  }
+
   const { error } = await admin.from("manual_fixture_results").upsert(
     {
       fixture_key: fixtureKey,

@@ -74,60 +74,72 @@ export default async function AdminResultsPage({
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-          {fixtures.map((fixture) => (
-            <Card key={fixture.id} className="border-2">
-              <CardHeader className="space-y-3 p-4 pb-3">
-                <div className="flex items-center justify-between gap-3">
-                  <CardDescription className="text-xs">{fixture.round}</CardDescription>
-                  <Badge variant={fixture.result ? "default" : "outline"}>
-                    {fixture.result ? "Placar salvo" : "Sem placar"}
-                  </Badge>
-                </div>
-                <CardTitle className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
-                  <span className="flex min-w-0 flex-col items-center gap-2 text-center">
-                    <Flag src={fixture.homeFlag} name={fixture.home} />
-                    <span className="min-w-0 break-words leading-tight">{fixture.home}</span>
-                  </span>
-                  <span className="text-muted-foreground">x</span>
-                  <span className="flex min-w-0 flex-col items-center gap-2 text-center">
-                    <Flag src={fixture.awayFlag} name={fixture.away} />
-                    <span className="min-w-0 break-words leading-tight">{fixture.away}</span>
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
-                <ResultForm action={saveManualFixtureResult}>
-                  <input type="hidden" name="fixture_key" value={fixture.id} />
-                  <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
-                    <Input
-                      className="h-11 text-center text-base"
-                      aria-label={`Placar ${fixture.home}`}
-                      name="home_score"
-                      type="number"
-                      min="0"
-                      max="99"
-                      defaultValue={fixture.result?.home ?? ""}
-                      required
-                    />
-                    <span className="text-muted-foreground">x</span>
-                    <Input
-                      className="h-11 text-center text-base"
-                      aria-label={`Placar ${fixture.away}`}
-                      name="away_score"
-                      type="number"
-                      min="0"
-                      max="99"
-                      defaultValue={fixture.result?.away ?? ""}
-                      required
-                    />
+          {fixtures.map((fixture) => {
+            const isSaved = Boolean(fixture.result);
+
+            return (
+              <Card key={fixture.id} className="border-2">
+                <CardHeader className="space-y-3 p-4 pb-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <CardDescription className="text-xs">{fixture.round}</CardDescription>
+                    <Badge variant={isSaved ? "default" : "outline"}>{isSaved ? "Placar salvo" : "Sem placar"}</Badge>
                   </div>
-                  <SubmitButton className="w-full" pendingText="Salvando...">
-                    Salvar placar correto
-                  </SubmitButton>
-                </ResultForm>
-              </CardContent>
-            </Card>
-          ))}
+                  <CardTitle className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 text-sm">
+                    <span className="flex min-w-0 flex-col items-center gap-2 text-center">
+                      <Flag src={fixture.homeFlag} name={fixture.home} />
+                      <span className="min-w-0 break-words leading-tight">{fixture.home}</span>
+                    </span>
+                    <span className="text-muted-foreground">x</span>
+                    <span className="flex min-w-0 flex-col items-center gap-2 text-center">
+                      <Flag src={fixture.awayFlag} name={fixture.away} />
+                      <span className="min-w-0 break-words leading-tight">{fixture.away}</span>
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <ResultForm action={saveManualFixtureResult}>
+                    <input type="hidden" name="fixture_key" value={fixture.id} />
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
+                      <Input
+                        className="h-11 text-center text-base font-medium"
+                        aria-label={`Placar ${fixture.home}`}
+                        name="home_score"
+                        type="number"
+                        min="0"
+                        max="99"
+                        defaultValue={fixture.result?.home ?? ""}
+                        disabled={isSaved}
+                        required
+                      />
+                      <span className="text-muted-foreground">x</span>
+                      <Input
+                        className="h-11 text-center text-base font-medium"
+                        aria-label={`Placar ${fixture.away}`}
+                        name="away_score"
+                        type="number"
+                        min="0"
+                        max="99"
+                        defaultValue={fixture.result?.away ?? ""}
+                        disabled={isSaved}
+                        required
+                      />
+                    </div>
+                    <SubmitButton
+                      className={
+                        isSaved
+                          ? "w-full bg-blue-600 text-white opacity-100 hover:bg-blue-600 disabled:opacity-100"
+                          : "w-full"
+                      }
+                      disabled={isSaved}
+                      pendingText="Salvando..."
+                    >
+                      {isSaved ? "Placar salvo" : "Salvar placar correto"}
+                    </SubmitButton>
+                  </ResultForm>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
