@@ -11,6 +11,7 @@ import {
   createParticipant,
   importParticipantsFromImportCodigo,
   importRound2PredictionsFromCode,
+  mergeDuplicateParticipants,
   resetAllFebajePasswords,
   resetParticipantPassword,
   updateParticipant,
@@ -58,6 +59,11 @@ export default async function ParticipantsAdminPage({
             <form action={importRound2PredictionsFromCode}>
               <SubmitButton variant="outline" pendingText="Importando Rodada 2...">
                 Importar palpites Rodada 2
+              </SubmitButton>
+            </form>
+            <form action={mergeDuplicateParticipants}>
+              <SubmitButton variant="outline" pendingText="Mesclando duplicados...">
+                Mesclar duplicados
               </SubmitButton>
             </form>
             <form action={resetAllFebajePasswords}>

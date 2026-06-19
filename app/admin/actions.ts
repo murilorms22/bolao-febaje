@@ -89,6 +89,40 @@ type ImportedPrediction = {
   awayScore: number;
 };
 
+const canonicalUsernameAliases: Record<string, string> = {
+  "altemir": "altemir",
+  "altemir da silva": "altemir",
+  "altemir.da.silva": "altemir",
+  "altermir": "altemir",
+  "altermir da silva": "altemir",
+  "altermir.da.silva": "altemir",
+  "susane.haas": "susane",
+  "raissa.remboski": "raissa",
+};
+
+const duplicateParticipantMerges = [
+  {
+    canonical: "altemir",
+    displayName: "Altemir",
+    aliases: ["altemir", "altemir da silva", "altemir.da.silva", "altermir", "altermir da silva", "altermir.da.silva"],
+  },
+  {
+    canonical: "susane",
+    displayName: "Susane",
+    aliases: ["susane.haas"],
+  },
+  {
+    canonical: "raissa",
+    displayName: "Raissa",
+    aliases: ["raissa.remboski"],
+  },
+];
+
+function canonicalUsername(username: string) {
+  const normalized = username.trim().toLowerCase();
+  return canonicalUsernameAliases[normalized] || normalized;
+}
+
 function parseSqlTuples(block: string) {
   return Array.from(block.matchAll(/\(([^()]*)\)/g)).map((match) =>
     Array.from(match[1].matchAll(/'([^']*)'|(-?\d+)/g)).map((valueMatch) => valueMatch[1] ?? valueMatch[2] ?? ""),
@@ -258,7 +292,11 @@ export async function importParticipantsFromImportCodigo() {
   let profileCount = 0;
 
   for (const participant of imported.participants) {
-    const email = usernameToEmail(participant.username);
+    const originalUsername = participant.username;
+    const username = canonicalUsername(originalUsername);
+    const canonicalMerge = duplicateParticipantMerges.find((item) => item.canonical === username);
+    const displayName = canonicalMerge?.displayName || participant.displayName;
+    const email = usernameToEmail(username);
     let userId: string | null = null;
 
     const { data, error } = await admin.auth.admin.createUser({
@@ -266,8 +304,8 @@ export async function importParticipantsFromImportCodigo() {
       password: "12345678",
       email_confirm: true,
       user_metadata: {
-        username: participant.username,
-        display_name: participant.displayName,
+        username,
+        display_name: displayName,
       },
     });
 
@@ -285,31 +323,31 @@ export async function importParticipantsFromImportCodigo() {
           password: "12345678",
           email_confirm: true,
           user_metadata: {
-            username: participant.username,
-            display_name: participant.displayName,
+            username,
+            display_name: displayName,
           },
         });
 
         if (updateAuthError) {
-          failures.push(`${participant.username}: ${updateAuthError.message}`);
+          failures.push(`${originalUsername}: ${updateAuthError.message}`);
           continue;
         }
       } else {
-        failures.push(`${participant.username}: ${error.message}`);
+        failures.push(`${originalUsername}: ${error.message}`);
         continue;
       }
     }
 
     if (!userId) {
-      failures.push(`${participant.username}: usuario Auth nao retornado.`);
+      failures.push(`${originalUsername}: usuario Auth nao retornado.`);
       continue;
     }
 
     const { error: profileError } = await admin.from("profiles").upsert(
       {
         id: userId,
-        username: participant.username,
-        display_name: participant.displayName,
+        username,
+        display_name: displayName,
         role: "user",
         initial_points: 0,
         must_change_password: true,
@@ -318,16 +356,17 @@ export async function importParticipantsFromImportCodigo() {
     );
 
     if (profileError) {
-      failures.push(`${participant.username}: ${profileError.message}`);
+      failures.push(`${originalUsername}: ${profileError.message}`);
       continue;
     }
 
-    userIdsByUsername.set(participant.username, userId);
+    userIdsByUsername.set(originalUsername, userId);
+    userIdsByUsername.set(username, userId);
     profileCount += 1;
   }
 
   const predictionRows = imported.predictions.flatMap((prediction) => {
-    const userId = userIdsByUsername.get(prediction.username);
+    const userId = userIdsByUsername.get(prediction.username) || userIdsByUsername.get(canonicalUsername(prediction.username));
 
     if (!userId) {
       failures.push(`${prediction.username}: profile nao encontrado para importar palpite.`);
@@ -378,7 +417,9 @@ export async function importRound2PredictionsFromCode() {
   await requireAdmin();
   const admin = getAdminClientOrRedirect(path);
   const validFixtureKeys = new Set(manualFixtures.map((fixture) => normalizeFixtureKey(fixture.id)));
-  const usernames = Array.from(new Set(rodada2Predictions.map((item) => item.username.trim().toLowerCase())));
+  const usernames = Array.from(
+    new Set(rodada2Predictions.flatMap((item) => [item.username.trim().toLowerCase(), canonicalUsername(item.username)])),
+  );
 
   const { data: profiles, error: profilesError } = await admin
     .from("profiles")
@@ -396,11 +437,12 @@ export async function importRound2PredictionsFromCode() {
   const failures: string[] = [];
 
   for (const userPredictions of rodada2Predictions) {
-    const username = userPredictions.username.trim().toLowerCase();
-    const userId = profileIdsByUsername.get(username);
+    const originalUsername = userPredictions.username.trim().toLowerCase();
+    const username = canonicalUsername(originalUsername);
+    const userId = profileIdsByUsername.get(username) || profileIdsByUsername.get(originalUsername);
 
     if (!userId) {
-      failures.push(`${username}: participante nao encontrado.`);
+      failures.push(`${originalUsername}: participante nao encontrado.`);
       continue;
     }
 
@@ -460,6 +502,140 @@ export async function importRound2PredictionsFromCode() {
   revalidatePath("/ranking");
 
   const summary = `${imported} palpites da Rodada 2 importados/atualizados.`;
+
+  if (failures.length) {
+    redirectBack(path, "error", `${summary} Falhas: ${failures.slice(0, 5).join(" | ")}`);
+  }
+
+  redirectBack(path, "success", summary);
+}
+
+export async function mergeDuplicateParticipants() {
+  const path = "/admin/participants";
+  await requireAdmin();
+  const admin = getAdminClientOrRedirect(path);
+
+  const { data: profiles, error: profilesError } = await admin
+    .from("profiles")
+    .select("id, username, display_name, initial_points, role")
+    .order("username");
+
+  if (profilesError) {
+    redirectBack(path, "error", profilesError.message);
+  }
+
+  let mergedPredictions = 0;
+  let deletedUsers = 0;
+  let renamedUsers = 0;
+  const failures: string[] = [];
+
+  for (const merge of duplicateParticipantMerges) {
+    const matchNames = new Set([merge.canonical, ...merge.aliases].map((item) => item.trim().toLowerCase()));
+    const candidates = (profiles || []).filter((profile) => {
+      const username = String(profile.username || "").trim().toLowerCase();
+      const displayName = String(profile.display_name || "").trim().toLowerCase();
+      return matchNames.has(username) || matchNames.has(displayName);
+    });
+    let canonical =
+      candidates.find((profile) => String(profile.username || "").trim().toLowerCase() === merge.canonical) ||
+      candidates[0];
+
+    if (!canonical) {
+      failures.push(`${merge.canonical}: usuario principal nao encontrado.`);
+      continue;
+    }
+
+    if (String(canonical.username || "").trim().toLowerCase() !== merge.canonical) {
+      const { error: renameError } = await admin
+        .from("profiles")
+        .update({
+          username: merge.canonical,
+          display_name: merge.displayName,
+        })
+        .eq("id", canonical.id);
+
+      if (renameError) {
+        failures.push(`${merge.canonical}: ${renameError.message}`);
+        continue;
+      }
+
+      const { error: authRenameError } = await admin.auth.admin.updateUserById(String(canonical.id), {
+        email: usernameToEmail(merge.canonical),
+        user_metadata: {
+          username: merge.canonical,
+          display_name: merge.displayName,
+        },
+      });
+
+      if (authRenameError) {
+        failures.push(`${merge.canonical}: ${authRenameError.message}`);
+      }
+
+      canonical = {
+        ...canonical,
+        username: merge.canonical,
+        display_name: merge.displayName,
+      };
+      renamedUsers += 1;
+    }
+
+    for (const duplicate of candidates) {
+      const duplicateUsername = String(duplicate.username || "").trim().toLowerCase();
+
+      if (!duplicate || duplicate.id === canonical.id) {
+        continue;
+      }
+
+      const { data: duplicatePredictions, error: predictionsError } = await admin
+        .from("manual_predictions")
+        .select("fixture_key, home_score, away_score")
+        .eq("user_id", duplicate.id);
+
+      if (predictionsError) {
+        failures.push(`${duplicateUsername}: ${predictionsError.message}`);
+        continue;
+      }
+
+      const rows = (duplicatePredictions || []).map((prediction) => ({
+        user_id: canonical.id,
+        fixture_key: prediction.fixture_key,
+        home_score: prediction.home_score,
+        away_score: prediction.away_score,
+      }));
+
+      if (rows.length) {
+        const { error: upsertError } = await admin.from("manual_predictions").upsert(rows, {
+          onConflict: "user_id,fixture_key",
+        });
+
+        if (upsertError) {
+          failures.push(`${duplicateUsername}: ${upsertError.message}`);
+          continue;
+        }
+
+        mergedPredictions += rows.length;
+      }
+
+      const { error: deleteAuthError } = await admin.auth.admin.deleteUser(String(duplicate.id));
+
+      if (deleteAuthError) {
+        const { error: deleteProfileError } = await admin.from("profiles").delete().eq("id", duplicate.id);
+
+        if (deleteProfileError) {
+          failures.push(`${duplicateUsername}: ${deleteAuthError.message} | ${deleteProfileError.message}`);
+          continue;
+        }
+      }
+
+      deletedUsers += 1;
+    }
+  }
+
+  revalidatePath(path);
+  revalidatePath("/dashboard");
+  revalidatePath("/ranking");
+
+  const summary = `${mergedPredictions} palpites transferidos, ${renamedUsers} usuarios normalizados e ${deletedUsers} duplicados excluidos.`;
 
   if (failures.length) {
     redirectBack(path, "error", `${summary} Falhas: ${failures.slice(0, 5).join(" | ")}`);
