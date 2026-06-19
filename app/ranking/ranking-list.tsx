@@ -210,3 +210,64 @@ export function RankingList({ ranking, fixtures, rounds, predictions }: RankingL
     </div>
   );
 }
+
+export function CompactRankingList({ ranking, fixtures, rounds, predictions }: RankingListProps) {
+  const [openParticipantId, setOpenParticipantId] = useState<string | null>(null);
+  const predictionsByUser = useMemo(() => {
+    const map = new Map<string, Map<string, ManualPrediction>>();
+
+    for (const prediction of predictions) {
+      if (!map.has(prediction.user_id)) {
+        map.set(prediction.user_id, new Map());
+      }
+      map.get(prediction.user_id)?.set(normalizeFixtureKey(prediction.fixture_key), prediction);
+    }
+
+    return map;
+  }, [predictions]);
+
+  if (!ranking.length) {
+    return <p className="text-sm text-muted-foreground">Nenhum participante no ranking.</p>;
+  }
+
+  return (
+    <div className="space-y-2">
+      {ranking.map((row, index) => {
+        const isOpen = openParticipantId === row.id;
+
+        return (
+          <div key={row.id} className="overflow-hidden rounded-md border">
+            <button
+              className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left hover:bg-accent"
+              onClick={() => setOpenParticipantId(isOpen ? null : row.id)}
+            >
+              <div className="min-w-0">
+                <p className="text-xs text-muted-foreground">#{index + 1}</p>
+                <p className="truncate text-sm font-medium">{row.name}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {row.exactPredictions} exatos · {row.correctOutcomes} resultados
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2 text-right">
+                <div>
+                  <p className="text-lg font-semibold">{row.totalPoints}</p>
+                  <p className="text-[11px] text-muted-foreground">pts</p>
+                </div>
+                <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen ? "rotate-180" : null)} />
+              </div>
+            </button>
+
+            {isOpen ? (
+              <PredictionSummary
+                participantId={row.id}
+                fixtures={fixtures}
+                rounds={rounds}
+                predictionsByUser={predictionsByUser}
+              />
+            ) : null}
+          </div>
+        );
+      })}
+    </div>
+  );
+}

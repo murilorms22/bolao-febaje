@@ -3,9 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { CompactRankingList } from "@/app/ranking/ranking-list";
 import {
-  getFixturePrediction,
   applyManualResults,
+  getFixturePrediction,
   manualFixtures,
   manualRounds,
   normalizeFixtureKey,
@@ -14,6 +15,7 @@ import {
   type ManualPrediction,
 } from "@/lib/manual-fixtures";
 import { calculateRanking, type RankingPrediction, type RankingProfile } from "@/lib/ranking";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { savePrediction } from "./actions";
 import { RoundSelect } from "./round-select";
@@ -56,6 +58,7 @@ export default async function DashboardPage({
   const params = await searchParams;
   const selectedRound = typeof params.round === "string" ? params.round : manualRounds[manualRounds.length - 1];
   const supabase = await createClient();
+  const admin = createAdminClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -73,16 +76,16 @@ export default async function DashboardPage({
       .select("fixture_key, home_score, away_score")
       .eq("user_id", user?.id)
       .returns<ManualPrediction[]>(),
-    supabase
+    admin
       .from("profiles")
       .select("id, username, display_name, initial_points, role")
       .order("display_name")
       .returns<RankingProfile[]>(),
-    supabase
+    admin
       .from("manual_predictions")
       .select("user_id, fixture_key, home_score, away_score")
       .returns<RankingPrediction[]>(),
-    supabase
+    admin
       .from("manual_fixture_results")
       .select("fixture_key, home_score, away_score")
       .returns<ManualFixtureResult[]>(),
@@ -187,23 +190,13 @@ export default async function DashboardPage({
             <CardHeader className="p-4 pb-2">
               <CardTitle>Ranking</CardTitle>
             </CardHeader>
-            <CardContent className="max-h-[calc(100vh-12rem)] space-y-3 overflow-y-auto p-4 pt-2">
-              {ranking.map((row, index) => (
-                <div key={row.id} className="flex items-center justify-between gap-3 rounded-md border px-3 py-2">
-                  <div className="min-w-0">
-                    <p className="text-xs text-muted-foreground">#{index + 1}</p>
-                    <p className="truncate text-sm font-medium">{row.name}</p>
-                    <p className="text-[11px] text-muted-foreground">
-                      {row.exactPredictions} exatos · {row.correctOutcomes} resultados
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-semibold">{row.totalPoints}</p>
-                    <p className="text-[11px] text-muted-foreground">pts</p>
-                  </div>
-                </div>
-              ))}
-              {!ranking.length ? <p className="text-sm text-muted-foreground">Nenhum participante no ranking.</p> : null}
+            <CardContent className="max-h-[calc(100vh-12rem)] overflow-y-auto p-4 pt-2">
+              <CompactRankingList
+                ranking={ranking}
+                fixtures={fixturesWithResults}
+                rounds={manualRounds}
+                predictions={rankingPredictions || []}
+              />
             </CardContent>
           </Card>
         </aside>
