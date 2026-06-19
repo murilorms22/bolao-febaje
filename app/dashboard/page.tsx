@@ -27,9 +27,9 @@ type Profile = {
 
 const statusStyles = {
   pending: "border-muted bg-card",
-  exact: "border-blue-500 bg-blue-50",
-  outcome: "border-green-500 bg-green-50",
-  wrong: "border-red-500 bg-red-50",
+  exact: "border-blue-500 bg-blue-50 dark:bg-blue-950/35",
+  outcome: "border-green-500 bg-green-50 dark:bg-green-950/35",
+  wrong: "border-red-500 bg-red-50 dark:bg-red-950/35",
   "no-prediction": "border-muted bg-card",
 };
 

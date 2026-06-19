@@ -1,36 +1,101 @@
 "use client";
 
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { cn } from "@/lib/utils";
+
+const navLinks = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/ranking", label: "Ranking" },
+  { href: "/admin", label: "Admin" },
+];
 
 export function SiteHeader() {
   const pathname = usePathname();
   const showNav = pathname !== "/auth";
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="border-b bg-background/95">
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <Link href="/dashboard" className="min-w-0 space-y-1">
-          <p className="text-xl font-bold tracking-tight">FEBAJE</p>
-          <p className="text-sm text-muted-foreground">Bolão da Copa do Mundo 2026</p>
-        </Link>
-        {showNav ? (
-          <nav className="grid grid-cols-2 gap-2 text-sm sm:flex sm:flex-wrap sm:items-center">
-            <Link className="rounded-md px-3 py-2 text-center hover:bg-accent" href="/dashboard">
-              Dashboard
-            </Link>
-            <Link className="rounded-md px-3 py-2 text-center hover:bg-accent" href="/ranking">
-              Ranking
-            </Link>
-            <Link className="rounded-md px-3 py-2 text-center hover:bg-accent" href="/admin">
-              Admin
-            </Link>
-            <SignOutButton />
-          </nav>
-        ) : null}
-      </div>
-    </header>
+    <>
+      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4">
+          <Link href="/dashboard" className="min-w-0 space-y-1" onClick={() => setIsOpen(false)}>
+            <p className="text-xl font-bold tracking-tight">FEBAJE</p>
+            <p className="text-sm text-muted-foreground">Bolão da Copa do Mundo 2026</p>
+          </Link>
+
+          {showNav ? (
+            <>
+              <nav className="hidden items-center gap-2 text-sm md:flex">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    className={cn(
+                      "rounded-md px-3 py-2 text-center hover:bg-accent",
+                      pathname.startsWith(link.href) ? "bg-accent text-accent-foreground" : null,
+                    )}
+                    href={link.href}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+
+              <Button
+                className="md:hidden"
+                variant="outline"
+                size="icon"
+                aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
+                aria-expanded={isOpen}
+                onClick={() => setIsOpen((current) => !current)}
+              >
+                {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </>
+          ) : null}
+        </div>
+      </header>
+
+      {showNav && isOpen ? (
+        <div className="fixed inset-0 z-30 bg-background md:hidden">
+          <div className="flex h-full flex-col px-4 pb-6 pt-24">
+            <nav className="grid gap-2 text-base">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  className={cn(
+                    "rounded-md border px-4 py-3 hover:bg-accent",
+                    pathname.startsWith(link.href) ? "bg-accent text-accent-foreground" : null,
+                  )}
+                  href={link.href}
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="mt-auto space-y-2 border-t pt-4">
+              <ThemeToggle />
+              <SignOutButton className="justify-start" />
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {showNav ? (
+        <div className="fixed bottom-4 left-4 z-30 hidden w-48 rounded-lg border bg-card p-2 shadow-sm md:block">
+          <div className="space-y-1">
+            <ThemeToggle />
+            <SignOutButton className="justify-start" />
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }
