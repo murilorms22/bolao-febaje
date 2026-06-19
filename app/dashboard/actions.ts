@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import { manualFixtures, normalizeFixtureKey } from "@/lib/manual-fixtures";
 import { createClient } from "@/lib/supabase/server";
 
+const lockedPredictionRounds = new Set(["Fase de Grupos - Rodada 2"]);
+
 function text(formData: FormData, key: string) {
   return String(formData.get(key) || "").trim();
 }
@@ -40,6 +42,10 @@ export async function savePrediction(formData: FormData) {
 
   if (fixture.result) {
     redirectBack("error", "Este confronto já foi realizado e não aceita novos palpites.");
+  }
+
+  if (lockedPredictionRounds.has(fixture.round)) {
+    redirectBack("error", "Os palpites desta rodada já estão trancados.");
   }
 
   if (homeScore < 0 || awayScore < 0 || homeScore > 99 || awayScore > 99) {

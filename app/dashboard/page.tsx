@@ -27,6 +27,8 @@ type Profile = {
   display_name: string | null;
 };
 
+const lockedPredictionRounds = new Set(["Fase de Grupos - Rodada 2"]);
+
 const statusStyles = {
   pending: "border-muted bg-card",
   exact: "border-blue-500 bg-blue-50 dark:bg-blue-950/35",
@@ -120,7 +122,7 @@ export default async function DashboardPage({
           {visibleFixtures.map((fixture) => {
             const prediction = getFixturePrediction(fixture, predictionsByFixture.get(normalizeFixtureKey(fixture.id)));
             const score = scoreFixture(fixture, prediction);
-            const isOpen = !fixture.result;
+            const isOpen = !fixture.result && !lockedPredictionRounds.has(fixture.round);
 
             return (
               <Card key={fixture.id} className={`relative h-full border-2 ${statusStyles[score.status]}`}>
@@ -176,7 +178,7 @@ export default async function DashboardPage({
                       />
                     </div>
                     <SubmitButton className="h-10 w-full" size="sm" disabled={!isOpen} pendingText="Salvando...">
-                      {prediction ? "Editar" : "Salvar"}
+                      {!isOpen ? "Trancado" : prediction ? "Editar" : "Salvar"}
                     </SubmitButton>
                   </form>
                 </CardContent>

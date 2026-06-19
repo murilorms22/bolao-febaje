@@ -6,8 +6,8 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { SignOutButton } from "@/components/auth/sign-out-button";
-import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -25,9 +25,13 @@ export function SiteHeader() {
     <>
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4">
-          <Link href="/dashboard" className="min-w-0 space-y-1" onClick={() => setIsOpen(false)}>
-            <p className="text-xl font-bold tracking-tight">FEBAJE</p>
-            <p className="text-sm text-muted-foreground">Bolão da Copa do Mundo 2026</p>
+          <Link href="/dashboard" className="flex min-w-0 items-center gap-3" onClick={() => setIsOpen(false)}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="h-11 w-11 shrink-0 object-contain" src="/copa2026.png" alt="Copa 2026" />
+            <span className="min-w-0 space-y-1">
+              <p className="text-xl font-bold tracking-tight">FEBAJE</p>
+              <p className="truncate text-sm text-muted-foreground">Bolão da Copa do Mundo 2026</p>
+            </span>
           </Link>
 
           {showNav ? (
