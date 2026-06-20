@@ -1,8 +1,5 @@
 // FEBAJE - Palpites da Rodada 2
-// Arquivo gerado a partir do arquivo RODADA2.txt enviado pelo usuário.
-// Objetivo: entregar ao Codex dados estruturados para importar/adicionar via código.
-// Observação importante: no bloco do usuário "mateus", o palpite de Tchéquia x África do Sul não deve ser considerado.
-// Portanto, mateus tem 23 palpites nesta rodada, começando por rodada2-suica-bosnia.
+// Dados estruturados para importar/adicionar via codigo.
 
 export type ManualRoundPrediction = {
   username: string;
@@ -14,8 +11,7 @@ export type ManualRoundPrediction = {
   }[];
 };
 
-export const rodada2Predictions: ManualRoundPrediction[] = 
-[
+export const rodada2Predictions: ManualRoundPrediction[] = [
   {
     "username": "altermir.da.silva",
     "displayName": "Altemir da Silva",
@@ -2547,22 +2543,22 @@ export const rodada2Predictions: ManualRoundPrediction[] =
       },
       {
         "fixtureKey": "rodada2-suica-bosnia",
-        "homeScore": 5,
-        "awayScore": 1
-      },
-      {
-        "fixtureKey": "rodada2-canada-catar",
-        "homeScore": 3,
-        "awayScore": 0
-      },
-      {
-        "fixtureKey": "rodada2-mexico-coreia-do-sul",
         "homeScore": 2,
         "awayScore": 1
       },
       {
-        "fixtureKey": "rodada2-eua-australia",
+        "fixtureKey": "rodada2-canada-catar",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada2-mexico-coreia-do-sul",
         "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada2-eua-australia",
+        "homeScore": 3,
         "awayScore": 1
       },
       {
@@ -2573,7 +2569,7 @@ export const rodada2Predictions: ManualRoundPrediction[] =
       {
         "fixtureKey": "rodada2-brasil-haiti",
         "homeScore": 3,
-        "awayScore": 0
+        "awayScore": 1
       },
       {
         "fixtureKey": "rodada2-turquia-paraguai",
@@ -2582,12 +2578,12 @@ export const rodada2Predictions: ManualRoundPrediction[] =
       },
       {
         "fixtureKey": "rodada2-holanda-suecia",
-        "homeScore": 3,
-        "awayScore": 1
+        "homeScore": 2,
+        "awayScore": 2
       },
       {
         "fixtureKey": "rodada2-alemanha-costa-do-marfim",
-        "homeScore": 5,
+        "homeScore": 2,
         "awayScore": 1
       },
       {
@@ -2597,37 +2593,37 @@ export const rodada2Predictions: ManualRoundPrediction[] =
       },
       {
         "fixtureKey": "rodada2-tunisia-japao",
-        "homeScore": 1,
+        "homeScore": 0,
         "awayScore": 2
       },
       {
         "fixtureKey": "rodada2-espanha-arabia-saudita",
-        "homeScore": 3,
+        "homeScore": 2,
         "awayScore": 0
       },
       {
         "fixtureKey": "rodada2-belgica-ira",
-        "homeScore": 3,
+        "homeScore": 2,
         "awayScore": 1
       },
       {
         "fixtureKey": "rodada2-uruguai-cabo-verde",
         "homeScore": 1,
-        "awayScore": 1
+        "awayScore": 0
       },
       {
         "fixtureKey": "rodada2-nova-zelandia-egito",
-        "homeScore": 0,
-        "awayScore": 1
+        "homeScore": 1,
+        "awayScore": 2
       },
       {
         "fixtureKey": "rodada2-argentina-austria",
-        "homeScore": 3,
+        "homeScore": 2,
         "awayScore": 0
       },
       {
         "fixtureKey": "rodada2-franca-iraque",
-        "homeScore": 4,
+        "homeScore": 3,
         "awayScore": 0
       },
       {
@@ -2642,8 +2638,8 @@ export const rodada2Predictions: ManualRoundPrediction[] =
       },
       {
         "fixtureKey": "rodada2-portugal-uzbequistao",
-        "homeScore": 3,
-        "awayScore": 1
+        "homeScore": 2,
+        "awayScore": 0
       },
       {
         "fixtureKey": "rodada2-inglaterra-gana",
@@ -2652,12 +2648,12 @@ export const rodada2Predictions: ManualRoundPrediction[] =
       },
       {
         "fixtureKey": "rodada2-panama-croacia",
-        "homeScore": 2,
-        "awayScore": 1
+        "homeScore": 0,
+        "awayScore": 2
       },
       {
         "fixtureKey": "rodada2-colombia-rd-congo",
-        "homeScore": 2,
+        "homeScore": 1,
         "awayScore": 0
       }
     ]
@@ -2792,6 +2788,11 @@ export const rodada2Predictions: ManualRoundPrediction[] =
     "username": "mateus",
     "displayName": "Mateus",
     "predictions": [
+      {
+        "fixtureKey": "rodada2-tchequia-africa-do-sul",
+        "homeScore": 1,
+        "awayScore": 0
+      },
       {
         "fixtureKey": "rodada2-suica-bosnia",
         "homeScore": 2,

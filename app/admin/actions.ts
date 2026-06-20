@@ -417,29 +417,47 @@ export async function importRound2PredictionsFromCode() {
   await requireAdmin();
   const admin = getAdminClientOrRedirect(path);
   const validFixtureKeys = new Set(manualFixtures.map((fixture) => normalizeFixtureKey(fixture.id)));
-  const usernames = Array.from(
-    new Set(rodada2Predictions.flatMap((item) => [item.username.trim().toLowerCase(), canonicalUsername(item.username)])),
-  );
 
   const { data: profiles, error: profilesError } = await admin
     .from("profiles")
-    .select("id, username")
-    .in("username", usernames);
+    .select("id, username, display_name")
+    .order("username");
 
   if (profilesError) {
     redirectBack(path, "error", profilesError.message);
   }
 
-  const profileIdsByUsername = new Map(
-    (profiles || []).map((profile) => [String(profile.username).trim().toLowerCase(), String(profile.id)]),
-  );
+  const profileIdsByName = new Map<string, string>();
+
+  for (const profile of profiles || []) {
+    const id = String(profile.id);
+    const username = String(profile.username || "").trim().toLowerCase();
+    const displayName = String(profile.display_name || "").trim().toLowerCase();
+
+    if (username) {
+      profileIdsByName.set(username, id);
+      profileIdsByName.set(canonicalUsername(username), id);
+    }
+
+    if (displayName) {
+      profileIdsByName.set(displayName, id);
+      profileIdsByName.set(canonicalUsername(displayName), id);
+    }
+  }
+
   const rows: { user_id: string; fixture_key: string; home_score: number; away_score: number }[] = [];
   const failures: string[] = [];
+  const importedByUser = new Map<string, number>();
 
   for (const userPredictions of rodada2Predictions) {
     const originalUsername = userPredictions.username.trim().toLowerCase();
     const username = canonicalUsername(originalUsername);
-    const userId = profileIdsByUsername.get(username) || profileIdsByUsername.get(originalUsername);
+    const displayName = userPredictions.displayName.trim().toLowerCase();
+    const userId =
+      profileIdsByName.get(username) ||
+      profileIdsByName.get(originalUsername) ||
+      profileIdsByName.get(displayName) ||
+      profileIdsByName.get(canonicalUsername(displayName));
 
     if (!userId) {
       failures.push(`${originalUsername}: participante nao encontrado.`);
@@ -448,10 +466,6 @@ export async function importRound2PredictionsFromCode() {
 
     for (const prediction of userPredictions.predictions) {
       const fixtureKey = normalizeFixtureKey(prediction.fixtureKey);
-
-      if (username === "mateus" && fixtureKey === "rodada2-tchequia-africa-do-sul") {
-        continue;
-      }
 
       if (!validFixtureKeys.has(fixtureKey)) {
         failures.push(`${username}: fixture invalido ${prediction.fixtureKey}.`);
@@ -464,6 +478,7 @@ export async function importRound2PredictionsFromCode() {
         home_score: prediction.homeScore,
         away_score: prediction.awayScore,
       });
+      importedByUser.set(username, (importedByUser.get(username) || 0) + 1);
     }
   }
 
@@ -483,25 +498,15 @@ export async function importRound2PredictionsFromCode() {
     imported += chunk.length;
   }
 
-  const mateusId = profileIdsByUsername.get("mateus");
-
-  if (mateusId) {
-    const { error } = await admin
-      .from("manual_predictions")
-      .delete()
-      .eq("user_id", mateusId)
-      .eq("fixture_key", "rodada2-tchequia-africa-do-sul");
-
-    if (error) {
-      failures.push(`mateus: ${error.message}`);
-    }
-  }
-
   revalidatePath(path);
   revalidatePath("/dashboard");
   revalidatePath("/ranking");
 
-  const summary = `${imported} palpites da Rodada 2 importados/atualizados.`;
+  const importedUsersSummary = Array.from(importedByUser.entries())
+    .sort(([firstUsername], [secondUsername]) => firstUsername.localeCompare(secondUsername))
+    .map(([username, count]) => `${username}: ${count}`)
+    .join(", ");
+  const summary = `${imported} palpites da Rodada 2 importados/atualizados. ${importedUsersSummary}.`;
 
   if (failures.length) {
     redirectBack(path, "error", `${summary} Falhas: ${failures.slice(0, 5).join(" | ")}`);
