@@ -14,7 +14,13 @@ import {
   type ManualFixtureResult,
   type ManualPrediction,
 } from "@/lib/manual-fixtures";
-import { calculateRanking, type RankingPrediction, type RankingProfile } from "@/lib/ranking";
+import {
+  applyRound2FallbackPredictions,
+  applyRound2FallbackRankingPredictions,
+  calculateRanking,
+  type RankingPrediction,
+  type RankingProfile,
+} from "@/lib/ranking";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { savePrediction } from "./actions";
@@ -94,14 +100,20 @@ export default async function DashboardPage({
   ]);
 
   const fixturesWithResults = applyManualResults(manualFixtures, manualResults || []);
+  const profileWithUsername = {
+    username: profile?.username || "",
+    display_name: profile?.display_name || null,
+  };
+  const predictionsWithFallback = applyRound2FallbackPredictions(profileWithUsername, predictions || []);
+  const rankingPredictionsWithFallback = applyRound2FallbackRankingPredictions(profiles || [], rankingPredictions || []);
   const visibleFixtures =
     selectedRound && selectedRound !== "all"
       ? fixturesWithResults.filter((fixture) => fixture.round === selectedRound)
       : fixturesWithResults;
   const predictionsByFixture = new Map(
-    (predictions || []).map((prediction) => [normalizeFixtureKey(prediction.fixture_key), prediction]),
+    predictionsWithFallback.map((prediction) => [normalizeFixtureKey(prediction.fixture_key), prediction]),
   );
-  const ranking = calculateRanking(profiles || [], rankingPredictions || [], fixturesWithResults);
+  const ranking = calculateRanking(profiles || [], rankingPredictionsWithFallback, fixturesWithResults);
 
   return (
     <div className="space-y-5">
@@ -197,7 +209,7 @@ export default async function DashboardPage({
                 ranking={ranking}
                 fixtures={fixturesWithResults}
                 rounds={manualRounds}
-                predictions={rankingPredictions || []}
+                predictions={rankingPredictionsWithFallback}
               />
             </CardContent>
           </Card>

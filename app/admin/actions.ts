@@ -102,8 +102,7 @@ const canonicalUsernameAliases: Record<string, string> = {
 
 const round2PredictionAliases: Record<string, string[]> = {
   "altermir.da.silva": ["altemir", "altemir da silva", "altemir.da.silva", "altermir", "altermir da silva"],
-  "mateus": ["mateus.felipe", "mateus felipe"],
-  "debora.dallacort": ["debora", "debora dallacort", "débora", "débora dallacort"],
+  "debora.dallacort": ["debora", "debora dallacort"],
   "victor.barreto": ["victor barreto", "victorbarreto"],
 };
 
@@ -152,11 +151,15 @@ function participantLookupKeys(value: string) {
   return Array.from(new Set([normalized, canonicalUsername(normalized), dotted, canonicalUsername(dotted), compact]));
 }
 
-function round2LookupKeys(username: string, displayName: string) {
-  const baseKeys = [...participantLookupKeys(username), ...participantLookupKeys(displayName)];
+function exactRound2LookupKeys(username: string, displayName: string) {
+  return Array.from(new Set([...participantLookupKeys(username), ...participantLookupKeys(displayName)]));
+}
+
+function aliasRound2LookupKeys(username: string, displayName: string) {
+  const baseKeys = exactRound2LookupKeys(username, displayName);
   const aliasKeys = baseKeys.flatMap((key) => round2PredictionAliases[key] || []);
 
-  return Array.from(new Set([...baseKeys, ...aliasKeys.flatMap(participantLookupKeys)]));
+  return Array.from(new Set(aliasKeys.flatMap(participantLookupKeys)));
 }
 
 function parseSqlTuples(block: string) {
@@ -485,7 +488,9 @@ export async function importRound2PredictionsFromCode() {
     const originalUsername = userPredictions.username.trim().toLowerCase();
     const username = canonicalUsername(originalUsername);
     const displayName = userPredictions.displayName.trim().toLowerCase();
-    const userId = round2LookupKeys(originalUsername, displayName)
+    const userId = exactRound2LookupKeys(originalUsername, displayName)
+      .map((key) => profileIdsByName.get(key))
+      .find(Boolean) || aliasRound2LookupKeys(originalUsername, displayName)
       .map((key) => profileIdsByName.get(key))
       .find(Boolean);
 

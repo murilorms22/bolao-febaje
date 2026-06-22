@@ -1,5 +1,10 @@
 import { applyManualResults, manualFixtures, manualRounds, type ManualFixtureResult } from "@/lib/manual-fixtures";
-import { calculateRanking, type RankingPrediction, type RankingProfile } from "@/lib/ranking";
+import {
+  applyRound2FallbackRankingPredictions,
+  calculateRanking,
+  type RankingPrediction,
+  type RankingProfile,
+} from "@/lib/ranking";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { RankingList } from "./ranking-list";
@@ -34,7 +39,8 @@ export default async function RankingPage() {
   ]);
 
   const fixturesWithResults = applyManualResults(manualFixtures, manualResults || []);
-  const ranking = calculateRanking(profiles || [], predictions || [], fixturesWithResults);
+  const predictionsWithFallback = applyRound2FallbackRankingPredictions(profiles || [], predictions || []);
+  const ranking = calculateRanking(profiles || [], predictionsWithFallback, fixturesWithResults);
 
   return (
     <div className="space-y-6">
@@ -49,7 +55,7 @@ export default async function RankingPage() {
         ranking={ranking}
         fixtures={fixturesWithResults}
         rounds={manualRounds}
-        predictions={predictions || []}
+        predictions={predictionsWithFallback}
       />
     </div>
   );

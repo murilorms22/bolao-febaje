@@ -5,6 +5,7 @@ import {
   type ManualFixture,
   type ManualPrediction,
 } from "@/lib/manual-fixtures";
+import { rodada2Predictions } from "@/lib/rodada2-predictions";
 
 export type RankingProfile = {
   id: string;
@@ -17,6 +18,130 @@ export type RankingProfile = {
 export type RankingPrediction = ManualPrediction & {
   user_id: string;
 };
+
+function normalizeParticipantName(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+function participantLookupKeys(value: string) {
+  const normalized = normalizeParticipantName(value);
+
+  if (!normalized) {
+    return [];
+  }
+
+  const dotted = normalized.replace(/[^a-z0-9]+/g, ".").replace(/^\.+|\.+$/g, "");
+  const compact = normalized.replace(/[^a-z0-9]+/g, "");
+
+  return Array.from(new Set([normalized, dotted, compact]));
+}
+
+const round2PredictionAliases: Record<string, string[]> = {
+  "altermir.da.silva": ["altemir", "altemir da silva", "altemir.da.silva", "altermir", "altermir da silva"],
+  "altemir": ["altermir.da.silva", "altermir", "altemir da silva"],
+  "altemir.da.silva": ["altermir.da.silva", "altemir", "altermir"],
+  "debora.dallacort": ["debora", "debora dallacort"],
+  "debora": ["debora.dallacort", "debora dallacort"],
+  "raissa": ["raissa.remboski", "raissa remboski"],
+  "raissa.remboski": ["raissa", "raissa remboski"],
+  "victor.barreto": ["victor barreto", "victorbarreto"],
+};
+
+function exactLookupKeys(username: string, displayName?: string | null) {
+  return Array.from(new Set([...participantLookupKeys(username), ...participantLookupKeys(displayName || "")]));
+}
+
+function aliasLookupKeys(username: string, displayName?: string | null) {
+  const baseKeys = [...participantLookupKeys(username), ...participantLookupKeys(displayName || "")];
+  const aliasKeys = baseKeys.flatMap((key) => round2PredictionAliases[key] || []);
+
+  return Array.from(new Set(aliasKeys.flatMap(participantLookupKeys)));
+}
+
+const rodada2PredictionsByParticipant = new Map(
+  rodada2Predictions.flatMap((participant) => {
+    const keys = exactLookupKeys(participant.username, participant.displayName);
+    return keys.map((key) => [key, participant.predictions] as const);
+  }),
+);
+
+function findRound2Predictions(username: string, displayName?: string | null) {
+  for (const key of exactLookupKeys(username, displayName)) {
+    const predictions = rodada2PredictionsByParticipant.get(key);
+
+    if (predictions) {
+      return predictions;
+    }
+  }
+
+  for (const key of aliasLookupKeys(username, displayName)) {
+    const predictions = rodada2PredictionsByParticipant.get(key);
+
+    if (predictions) {
+      return predictions;
+    }
+  }
+
+  return [];
+}
+
+export function applyRound2FallbackPredictions(
+  profile: Pick<RankingProfile, "username" | "display_name">,
+  predictions: ManualPrediction[] = [],
+) {
+  const predictionsByFixture = new Map(
+    predictions.map((prediction) => [normalizeFixtureKey(prediction.fixture_key), prediction]),
+  );
+
+  for (const prediction of findRound2Predictions(profile.username, profile.display_name)) {
+    const fixtureKey = normalizeFixtureKey(prediction.fixtureKey);
+
+    if (!predictionsByFixture.has(fixtureKey)) {
+      predictionsByFixture.set(fixtureKey, {
+        fixture_key: fixtureKey,
+        home_score: prediction.homeScore,
+        away_score: prediction.awayScore,
+      });
+    }
+  }
+
+  return Array.from(predictionsByFixture.values());
+}
+
+export function applyRound2FallbackRankingPredictions(
+  profiles: RankingProfile[] = [],
+  predictions: RankingPrediction[] = [],
+) {
+  const predictionsByUser = new Map<string, RankingPrediction[]>();
+
+  for (const prediction of predictions) {
+    if (!predictionsByUser.has(prediction.user_id)) {
+      predictionsByUser.set(prediction.user_id, []);
+    }
+
+    predictionsByUser.get(prediction.user_id)?.push(prediction);
+  }
+
+  const mergedPredictions: RankingPrediction[] = [];
+
+  for (const profile of profiles) {
+    const userPredictions = applyRound2FallbackPredictions(profile, predictionsByUser.get(profile.id) || []).map(
+      (prediction) => ({
+        ...prediction,
+        user_id: profile.id,
+      }),
+    );
+
+    mergedPredictions.push(...userPredictions);
+  }
+
+  return mergedPredictions;
+}
 
 export function calculateRanking(
   profiles: RankingProfile[] = [],
