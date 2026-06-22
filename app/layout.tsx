@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import Script from "next/script";
 
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "FEBAJE | Bolão da Copa 2026",
@@ -19,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className="font-sans">
         <Script id="theme-default" strategy="beforeInteractive">
           {`
             try {

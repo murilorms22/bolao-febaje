@@ -100,6 +100,13 @@ const canonicalUsernameAliases: Record<string, string> = {
   "raissa.remboski": "raissa",
 };
 
+const round2PredictionAliases: Record<string, string[]> = {
+  "altermir.da.silva": ["altemir", "altemir da silva", "altemir.da.silva", "altermir", "altermir da silva"],
+  "mateus": ["mateus.felipe", "mateus felipe"],
+  "debora.dallacort": ["debora", "debora dallacort", "débora", "débora dallacort"],
+  "victor.barreto": ["victor barreto", "victorbarreto"],
+};
+
 const duplicateParticipantMerges = [
   {
     canonical: "altemir",
@@ -121,6 +128,35 @@ const duplicateParticipantMerges = [
 function canonicalUsername(username: string) {
   const normalized = username.trim().toLowerCase();
   return canonicalUsernameAliases[normalized] || normalized;
+}
+
+function normalizeParticipantName(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+}
+
+function participantLookupKeys(value: string) {
+  const normalized = normalizeParticipantName(value);
+
+  if (!normalized) {
+    return [];
+  }
+
+  const dotted = normalized.replace(/[^a-z0-9]+/g, ".").replace(/^\.+|\.+$/g, "");
+  const compact = normalized.replace(/[^a-z0-9]+/g, "");
+
+  return Array.from(new Set([normalized, canonicalUsername(normalized), dotted, canonicalUsername(dotted), compact]));
+}
+
+function round2LookupKeys(username: string, displayName: string) {
+  const baseKeys = [...participantLookupKeys(username), ...participantLookupKeys(displayName)];
+  const aliasKeys = baseKeys.flatMap((key) => round2PredictionAliases[key] || []);
+
+  return Array.from(new Set([...baseKeys, ...aliasKeys.flatMap(participantLookupKeys)]));
 }
 
 function parseSqlTuples(block: string) {
@@ -434,14 +470,10 @@ export async function importRound2PredictionsFromCode() {
     const username = String(profile.username || "").trim().toLowerCase();
     const displayName = String(profile.display_name || "").trim().toLowerCase();
 
-    if (username) {
-      profileIdsByName.set(username, id);
-      profileIdsByName.set(canonicalUsername(username), id);
-    }
-
-    if (displayName) {
-      profileIdsByName.set(displayName, id);
-      profileIdsByName.set(canonicalUsername(displayName), id);
+    for (const key of [...participantLookupKeys(username), ...participantLookupKeys(displayName)]) {
+      if (!profileIdsByName.has(key)) {
+        profileIdsByName.set(key, id);
+      }
     }
   }
 
@@ -453,14 +485,12 @@ export async function importRound2PredictionsFromCode() {
     const originalUsername = userPredictions.username.trim().toLowerCase();
     const username = canonicalUsername(originalUsername);
     const displayName = userPredictions.displayName.trim().toLowerCase();
-    const userId =
-      profileIdsByName.get(username) ||
-      profileIdsByName.get(originalUsername) ||
-      profileIdsByName.get(displayName) ||
-      profileIdsByName.get(canonicalUsername(displayName));
+    const userId = round2LookupKeys(originalUsername, displayName)
+      .map((key) => profileIdsByName.get(key))
+      .find(Boolean);
 
     if (!userId) {
-      failures.push(`${originalUsername}: participante nao encontrado.`);
+      failures.push(`${originalUsername} (${userPredictions.displayName}): participante nao encontrado.`);
       continue;
     }
 
@@ -663,10 +693,6 @@ export async function saveManualFixtureResult(formData: FormData) {
     redirectBack(path, "error", "Jogo não encontrado nos fixtures hardcoded.");
   }
 
-  if (fixture.result) {
-    redirectBack(path, "error", "Este placar já está marcado como correto e não pode ser alterado.");
-  }
-
   if (!Number.isInteger(homeScore) || !Number.isInteger(awayScore) || homeScore < 0 || awayScore < 0) {
     redirectBack(path, "error", "Informe placares válidos.");
   }
@@ -680,10 +706,6 @@ export async function saveManualFixtureResult(formData: FormData) {
 
   if (existingResultError) {
     redirectBack(path, "error", existingResultError.message);
-  }
-
-  if (existingResult) {
-    redirectBack(path, "error", "Este placar já está salvo e não pode ser alterado.");
   }
 
   const { error } = await admin.from("manual_fixture_results").upsert(
@@ -703,7 +725,13 @@ export async function saveManualFixtureResult(formData: FormData) {
   revalidatePath(path);
   revalidatePath("/dashboard");
   revalidatePath("/ranking");
-  redirectBack(path, "success", "Placar salvo. A pontuação já foi recalculada.");
+  redirectBack(
+    path,
+    "success",
+    existingResult
+      ? "Placar atualizado. O valor anterior foi sobrescrito e a pontuacao foi recalculada."
+      : "Placar salvo. A pontuacao ja foi recalculada.",
+  );
 }
 
 export async function createParticipant(formData: FormData) {
