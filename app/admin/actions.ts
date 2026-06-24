@@ -96,7 +96,11 @@ const canonicalUsernameAliases: Record<string, string> = {
   "altermir": "altemir",
   "altermir da silva": "altemir",
   "altermir.da.silva": "altemir",
+  "debora dallacort": "debora.dallacort",
+  "debora.dallacort": "debora.dallacort",
   "susane.haas": "susane",
+  "victor barreto": "victor.barreto",
+  "victor.barreto": "victor.barreto",
   "raissa.remboski": "raissa",
 };
 
@@ -121,6 +125,28 @@ const duplicateParticipantMerges = [
 function canonicalUsername(username: string) {
   const normalized = username.trim().toLowerCase();
   return canonicalUsernameAliases[normalized] || normalized;
+}
+
+function participantLookupKey(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function participantLookupValues(value: string) {
+  const normalized = value.trim().toLowerCase();
+  const canonical = canonicalUsername(normalized);
+  return Array.from(
+    new Set([
+      normalized,
+      canonical,
+      participantLookupKey(normalized),
+      participantLookupKey(canonical),
+    ].filter(Boolean)),
+  );
 }
 
 function parseSqlTuples(block: string) {
@@ -428,6 +454,7 @@ export async function importRound2PredictionsFromCode() {
   }
 
   const profileIdsByName = new Map<string, string>();
+  const usernamesByProfileId = new Map<string, string>();
 
   for (const profile of profiles || []) {
     const id = String(profile.id);
@@ -435,13 +462,19 @@ export async function importRound2PredictionsFromCode() {
     const displayName = String(profile.display_name || "").trim().toLowerCase();
 
     if (username) {
-      profileIdsByName.set(username, id);
-      profileIdsByName.set(canonicalUsername(username), id);
+      usernamesByProfileId.set(id, username);
+    }
+
+    if (username) {
+      for (const lookupValue of participantLookupValues(username)) {
+        profileIdsByName.set(lookupValue, id);
+      }
     }
 
     if (displayName) {
-      profileIdsByName.set(displayName, id);
-      profileIdsByName.set(canonicalUsername(displayName), id);
+      for (const lookupValue of participantLookupValues(displayName)) {
+        profileIdsByName.set(lookupValue, id);
+      }
     }
   }
 
@@ -453,14 +486,15 @@ export async function importRound2PredictionsFromCode() {
     const originalUsername = userPredictions.username.trim().toLowerCase();
     const username = canonicalUsername(originalUsername);
     const displayName = userPredictions.displayName.trim().toLowerCase();
-    const userId =
-      profileIdsByName.get(username) ||
-      profileIdsByName.get(originalUsername) ||
-      profileIdsByName.get(displayName) ||
-      profileIdsByName.get(canonicalUsername(displayName));
+    const lookupValues = [
+      ...participantLookupValues(username),
+      ...participantLookupValues(originalUsername),
+      ...participantLookupValues(displayName),
+    ];
+    const userId = lookupValues.map((lookupValue) => profileIdsByName.get(lookupValue)).find(Boolean);
 
     if (!userId) {
-      failures.push(`${originalUsername}: participante nao encontrado.`);
+      failures.push(`${originalUsername}: participante nao encontrado. Chaves: ${Array.from(new Set(lookupValues)).join("/")}`);
       continue;
     }
 
@@ -478,7 +512,8 @@ export async function importRound2PredictionsFromCode() {
         home_score: prediction.homeScore,
         away_score: prediction.awayScore,
       });
-      importedByUser.set(username, (importedByUser.get(username) || 0) + 1);
+      const importedUsername = usernamesByProfileId.get(userId) || username;
+      importedByUser.set(importedUsername, (importedByUser.get(importedUsername) || 0) + 1);
     }
   }
 

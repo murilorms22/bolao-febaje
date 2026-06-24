@@ -56,6 +56,7 @@ function fixture(
 
 const round1 = "Fase de Grupos - Rodada 1";
 const round2 = "Fase de Grupos - Rodada 2";
+const round3 = "Fase de Grupos - Rodada 3";
 
 export const manualFixtures: ManualFixture[] = [
   fixture("rodada1-mexico-africa-do-sul", round1, "México", "África do Sul", "mx", "za", { home: 2, away: 0 }, { home: 1, away: 0 }),
@@ -107,6 +108,31 @@ export const manualFixtures: ManualFixture[] = [
   fixture("rodada2-inglaterra-gana", round2, "Inglaterra", "Gana", "gb-eng", "gh", null, { home: 3, away: 0 }),
   fixture("rodada2-panama-croacia", round2, "Panamá", "Croácia", "pa", "hr", null, { home: 0, away: 2 }),
   fixture("rodada2-colombia-rd-congo", round2, "Colômbia", "RD Congo", "co", "cd", null, { home: 1, away: 0 }),
+
+  fixture("rodada3-suica-canada", round3, "Suíça", "Canadá", "ch", "ca"),
+  fixture("rodada3-bosnia-catar", round3, "Bósnia", "Catar", "ba", "qa"),
+  fixture("rodada3-escocia-brasil", round3, "Escócia", "Brasil", "gb-sct", "br"),
+  fixture("rodada3-marrocos-haiti", round3, "Marrocos", "Haiti", "ma", "ht"),
+  fixture("rodada3-africa-do-sul-coreia-do-sul", round3, "África do Sul", "Coreia do Sul", "za", "kr"),
+  fixture("rodada3-tchequia-mexico", round3, "Tchéquia", "México", "cz", "mx"),
+  fixture("rodada3-equador-alemanha", round3, "Equador", "Alemanha", "ec", "de"),
+  fixture("rodada3-curacao-costa-do-marfim", round3, "Curaçao", "Costa do Marfim", "cw", "ci"),
+  fixture("rodada3-tunisia-holanda", round3, "Tunísia", "Holanda", "tn", "nl"),
+  fixture("rodada3-japao-suecia", round3, "Japão", "Suécia", "jp", "se"),
+  fixture("rodada3-turquia-eua", round3, "Turquia", "EUA", "tr", "us"),
+  fixture("rodada3-paraguai-australia", round3, "Paraguai", "Austrália", "py", "au"),
+  fixture("rodada3-senegal-iraque", round3, "Senegal", "Iraque", "sn", "iq"),
+  fixture("rodada3-noruega-franca", round3, "Noruega", "França", "no", "fr"),
+  fixture("rodada3-cabo-verde-arabia-saudita", round3, "Cabo Verde", "Arábia Saudita", "cv", "sa"),
+  fixture("rodada3-uruguai-espanha", round3, "Uruguai", "Espanha", "uy", "es"),
+  fixture("rodada3-ira-egito", round3, "Irã", "Egito", "ir", "eg"),
+  fixture("rodada3-nova-zelandia-belgica", round3, "Nova Zelândia", "Bélgica", "nz", "be"),
+  fixture("rodada3-panama-inglaterra", round3, "Panamá", "Inglaterra", "pa", "gb-eng"),
+  fixture("rodada3-gana-croacia", round3, "Gana", "Croácia", "gh", "hr"),
+  fixture("rodada3-colombia-portugal", round3, "Colômbia", "Portugal", "co", "pt"),
+  fixture("rodada3-rd-congo-uzbequistao", round3, "RD Congo", "Uzbequistão", "cd", "uz"),
+  fixture("rodada3-argelia-austria", round3, "Argélia", "Áustria", "dz", "at"),
+  fixture("rodada3-jordania-argentina", round3, "Jordânia", "Argentina", "jo", "ar"),
 ];
 
 export const manualRounds = Array.from(new Set(manualFixtures.map((item) => item.round)));
