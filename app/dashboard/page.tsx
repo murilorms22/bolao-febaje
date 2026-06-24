@@ -134,7 +134,7 @@ export default async function DashboardPage({
           {visibleFixtures.map((fixture) => {
             const prediction = getFixturePrediction(fixture, predictionsByFixture.get(normalizeFixtureKey(fixture.id)));
             const score = scoreFixture(fixture, prediction);
-            const isOpen = !fixture.result && !lockedPredictionRounds.has(fixture.round);
+            const isOpen = false;
 
             return (
               <Card key={fixture.id} className={`relative h-full border-2 ${statusStyles[score.status]}`}>

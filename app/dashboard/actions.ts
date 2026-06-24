@@ -22,51 +22,5 @@ function redirectBack(type: "success" | "error", message: string): never {
 }
 
 export async function savePrediction(formData: FormData) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/auth");
-  }
-
-  const fixtureKey = normalizeFixtureKey(text(formData, "fixture_key"));
-  const homeScore = scoreValue(formData, "home_score");
-  const awayScore = scoreValue(formData, "away_score");
-  const fixture = manualFixtures.find((item) => normalizeFixtureKey(item.id) === fixtureKey);
-
-  if (!fixture) {
-    redirectBack("error", "Jogo inválido.");
-  }
-
-  if (fixture.result) {
-    redirectBack("error", "Este confronto já foi realizado e não aceita novos palpites.");
-  }
-
-  if (lockedPredictionRounds.has(fixture.round)) {
-    redirectBack("error", "Os palpites desta rodada já estão trancados.");
-  }
-
-  if (homeScore < 0 || awayScore < 0 || homeScore > 99 || awayScore > 99) {
-    redirectBack("error", "O palpite deve ter placares de 0 a 99.");
-  }
-
-  const { error } = await supabase.from("manual_predictions").upsert(
-    {
-      user_id: user.id,
-      fixture_key: fixtureKey,
-      home_score: homeScore,
-      away_score: awayScore,
-    },
-    { onConflict: "user_id,fixture_key" },
-  );
-
-  if (error) {
-    redirectBack("error", error.message);
-  }
-
-  revalidatePath("/dashboard");
-  revalidatePath("/ranking");
-  redirectBack("success", "Palpite salvo.");
+  redirectBack("error", "Os palpites estão trancados no site. Os envios agora são manuais.");
 }
