@@ -564,6 +564,228 @@ export async function importRound2PredictionsFromCode() {
   redirectBack(path, "success", summary);
 }
 
+export async function importRound3PredictionsFromCode() {
+  const path = "/admin/participants";
+  await requireAdmin();
+  const admin = getAdminClientOrRedirect(path);
+
+  let content: string;
+  try {
+    content = await readFile(join(process.cwd(), "rodada3.txt"), "utf8");
+  } catch (error) {
+    redirectBack(path, "error", "Arquivo rodada3.txt nao encontrado na raiz do projeto.");
+  }
+
+  if (!content.trim()) {
+    redirectBack(path, "error", "O arquivo rodada3.txt esta vazio.");
+  }
+
+  const { data: profiles, error: profilesError } = await admin
+    .from("profiles")
+    .select("id, username, display_name")
+    .order("username");
+
+  if (profilesError) {
+    redirectBack(path, "error", profilesError.message);
+  }
+
+  const profileMap = new Map(profiles.map(p => [p.username, p.id]));
+  const usernamesByProfileId = new Map(profiles.map(p => [p.id, p.username]));
+
+  const participantsList = [
+    { key: 'vitor.fregulia', search: ['vitor fregulia'] },
+    { key: 'joao.braatz', search: ['joao braatz'] },
+    { key: 'victor.barreto', search: ['victor barreto'] },
+    { key: 'gabriel.haas', search: ['gabriel haas'] },
+    { key: 'susane', search: ['susane haas', 'susane'] },
+    { key: 'altemir', search: ['altemir silva', 'altemir da silva', 'altemir'] },
+    { key: 'erico.pires', search: ['erico pires', 'erico'] },
+    { key: 'raissa', search: ['raissa remboski', 'raissa'] },
+    { key: 'joao.flach', search: ['joao flach'] },
+    { key: 'cleverson.toledo', search: ['cleverson toledo', 'cleverson'] },
+    { key: 'jardel', search: ['jardel'] },
+    { key: 'mateus.felipe', search: ['mateus felipe'] },
+    { key: 'mateus', search: ['mateus'] },
+    { key: 'debora.dallacort', search: ['debora dallacort', 'debora'] },
+    { key: 'gabriel.reichow', search: ['gabriel reichow'] },
+    { key: 'abelha', search: ['abelha'] },
+    { key: 'bazzo', search: ['bazzo'] },
+    { key: 'everson.toledo', search: ['everson toledo'] },
+    { key: 'victor', search: ['victor'] },
+    { key: 'ary', search: ['ary'] },
+    { key: 'mariane.silva', search: ['mariane silva', 'mariane'] },
+    { key: 'charles.bandeira', search: ['charles bandeira', 'charles'] },
+    { key: 'murilo', search: ['murilo'] }
+  ];
+
+  const fixturesList = [
+    { key: "rodada3-suica-canada", team1: "suica", team2: "canada" },
+    { key: "rodada3-bosnia-catar", team1: "bosnia", team2: "catar" },
+    { key: "rodada3-escocia-brasil", team1: "escocia", team2: "brasil" },
+    { key: "rodada3-marrocos-haiti", team1: "marrocos", team2: "haiti" },
+    { key: "rodada3-africa-do-sul-coreia-do-sul", team1: "africa do sul", team2: "coreia do sul" },
+    { key: "rodada3-tchequia-mexico", team1: "tchequia", team2: "mexico", altTeam1: "republica tcheca" },
+    { key: "rodada3-equador-alemanha", team1: "equador", team2: "alemanha" },
+    { key: "rodada3-curacao-costa-do-marfim", team1: "curacao", team2: "costa do marfim", altTeam1: "curacau" },
+    { key: "rodada3-tunisia-holanda", team1: "tunisia", team2: "holanda" },
+    { key: "rodada3-japao-suecia", team1: "japao", team2: "suecia" },
+    { key: "rodada3-turquia-eua", team1: "turquia", team2: "eua", altTeam2: "estados unidos" },
+    { key: "rodada3-paraguai-australia", team1: "paraguai", team2: "australia" },
+    { key: "rodada3-senegal-iraque", team1: "senegal", team2: "iraque" },
+    { key: "rodada3-noruega-franca", team1: "noruega", team2: "franca" },
+    { key: "rodada3-cabo-verde-arabia-saudita", team1: "cabo verde", team2: "arabia saudita" },
+    { key: "rodada3-uruguai-espanha", team1: "uruguai", team2: "espanha" },
+    { key: "rodada3-ira-egito", team1: "ira", team2: "egito" },
+    { key: "rodada3-nova-zelandia-belgica", team1: "nova zelandia", team2: "belgica" },
+    { key: "rodada3-panama-inglaterra", team1: "panama", team2: "inglaterra" },
+    { key: "rodada3-gana-croacia", team1: "gana", team2: "croacia" },
+    { key: "rodada3-colombia-portugal", team1: "colombia", team2: "portugal" },
+    { key: "rodada3-rd-congo-uzbequistao", team1: "rd congo", team2: "uzbequistao", altTeam1: "congo" },
+    { key: "rodada3-argelia-austria", team1: "argelia", team2: "austria" },
+    { key: "rodada3-jordania-argentina", team1: "jordania", team2: "argentina" }
+  ];
+
+  function normalize(str: string) {
+    return str
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\w\s-]/g, "")
+      .trim();
+  }
+
+  function findMatchFixture(normalizedLine: string) {
+    for (const f of fixturesList) {
+      const t1 = f.team1;
+      const t2 = f.team2;
+      const hasT1 = normalizedLine.includes(t1) || (f.altTeam1 && normalizedLine.includes(f.altTeam1));
+      const hasT2 = normalizedLine.includes(t2) || (f.altTeam2 && normalizedLine.includes(f.altTeam2));
+      
+      if (f.key === 'rodada3-ira-egito') {
+        if (normalizedLine.includes('iraque')) continue;
+      }
+      
+      if (hasT1 && hasT2) {
+        return f;
+      }
+    }
+    return null;
+  }
+
+  const lines = content.split(/\r?\n/);
+  let currentParticipant: string | null = null;
+  const allParsedPredictions: { username: string; fixtureKey: string; homeScore: number; awayScore: number }[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    const normalizedLine = normalize(line);
+
+    let matchedParticipant: string | null = null;
+    for (const p of participantsList) {
+      for (const term of p.search) {
+        if (normalizedLine === term || normalizedLine === term + ' palpites' || normalizedLine.startsWith(term + ':')) {
+          matchedParticipant = p.key;
+          break;
+        }
+      }
+      if (matchedParticipant) break;
+    }
+
+    if (matchedParticipant) {
+      currentParticipant = matchedParticipant;
+      continue;
+    }
+
+    if (currentParticipant) {
+      const scoreMatch = line.match(/(\d+)\s*[\s\-xX]\s*(\d+)/i);
+      if (scoreMatch) {
+        const fixture = findMatchFixture(normalizedLine);
+        if (fixture) {
+          const homeScore = Number(scoreMatch[1]);
+          const awayScore = Number(scoreMatch[2]);
+          
+          const idx1 = normalizedLine.indexOf(fixture.team1) !== -1 ? normalizedLine.indexOf(fixture.team1) : normalizedLine.indexOf(fixture.altTeam1 || '');
+          const idx2 = normalizedLine.indexOf(fixture.team2) !== -1 ? normalizedLine.indexOf(fixture.team2) : normalizedLine.indexOf(fixture.altTeam2 || '');
+          
+          let finalHomeScore = homeScore;
+          let finalAwayScore = awayScore;
+          
+          if (idx2 !== -1 && idx1 !== -1 && idx2 < idx1) {
+            finalHomeScore = awayScore;
+            finalAwayScore = homeScore;
+          }
+
+          allParsedPredictions.push({
+            username: currentParticipant,
+            fixtureKey: fixture.key,
+            homeScore: finalHomeScore,
+            awayScore: finalAwayScore
+          });
+        }
+      }
+    }
+  }
+
+  if (allParsedPredictions.length === 0) {
+    redirectBack(path, "error", "Nenhum palpite valido encontrado em rodada3.txt.");
+  }
+
+  const rows: { user_id: string; fixture_key: string; home_score: number; away_score: number }[] = [];
+  const failures: string[] = [];
+  const importedByUser = new Map<string, number>();
+
+  for (const pred of allParsedPredictions) {
+    const userId = profileMap.get(pred.username);
+    if (!userId) {
+      failures.push(`Perfil nao encontrado para usuario: ${pred.username}`);
+      continue;
+    }
+
+    rows.push({
+      user_id: userId,
+      fixture_key: pred.fixtureKey,
+      home_score: pred.homeScore,
+      away_score: pred.awayScore
+    });
+
+    const importedUsername = usernamesByProfileId.get(userId) || pred.username;
+    importedByUser.set(importedUsername, (importedByUser.get(importedUsername) || 0) + 1);
+  }
+
+  let importedCount = 0;
+  const batchSize = 100;
+  for (let idx = 0; idx < rows.length; idx += batchSize) {
+    const chunk = rows.slice(idx, idx + batchSize);
+    const { error } = await admin
+      .from("manual_predictions")
+      .upsert(chunk, { onConflict: "user_id,fixture_key" });
+
+    if (error) {
+      failures.push(`Erro ao importar lote iniciando em ${idx}: ${error.message}`);
+    } else {
+      importedCount += chunk.length;
+    }
+  }
+
+  revalidatePath(path);
+  revalidatePath("/dashboard");
+  revalidatePath("/ranking");
+
+  const importedUsersSummary = Array.from(importedByUser.entries())
+    .sort(([firstUsername], [secondUsername]) => firstUsername.localeCompare(secondUsername))
+    .map(([username, count]) => `${username}: ${count}`)
+    .join(", ");
+  const summary = `${importedCount} palpites da Rodada 3 importados/atualizados do arquivo rodada3.txt. ${importedUsersSummary}.`;
+
+  if (failures.length) {
+    redirectBack(path, "error", `${summary} Falhas: ${failures.slice(0, 5).join(" | ")}`);
+  }
+
+  redirectBack(path, "success", summary);
+}
+
 export async function mergeDuplicateParticipants() {
   const path = "/admin/participants";
   await requireAdmin();
