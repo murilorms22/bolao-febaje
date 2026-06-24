@@ -2,9 +2,7 @@ import { AdminMessage } from "@/components/admin/admin-message";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
-import { SubmitButton } from "@/components/ui/submit-button";
 import {
   applyManualResults,
   manualFixtures,
@@ -97,45 +95,15 @@ export default async function AdminResultsPage({
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
-                  <ResultForm action={saveManualFixtureResult}>
-                    <input type="hidden" name="fixture_key" value={fixture.id} />
-                    <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
-                      <Input
-                        className="h-11 text-center text-base font-medium"
-                        aria-label={`Placar ${fixture.home}`}
-                        name="home_score"
-                        type="number"
-                        min="0"
-                        max="99"
-                        defaultValue={fixture.result?.home ?? ""}
-                        disabled={isSaved}
-                        required
-                      />
-                      <span className="text-muted-foreground">x</span>
-                      <Input
-                        className="h-11 text-center text-base font-medium"
-                        aria-label={`Placar ${fixture.away}`}
-                        name="away_score"
-                        type="number"
-                        min="0"
-                        max="99"
-                        defaultValue={fixture.result?.away ?? ""}
-                        disabled={isSaved}
-                        required
-                      />
-                    </div>
-                    <SubmitButton
-                      className={
-                        isSaved
-                          ? "w-full bg-blue-600 text-white opacity-100 hover:bg-blue-600 disabled:opacity-100"
-                          : "w-full"
-                      }
-                      disabled={isSaved}
-                      pendingText="Salvando..."
-                    >
-                      {isSaved ? "Placar salvo" : "Salvar placar correto"}
-                    </SubmitButton>
-                  </ResultForm>
+                  <ResultForm
+                    action={saveManualFixtureResult}
+                    isSaved={isSaved}
+                    fixtureKey={fixture.id}
+                    homeName={fixture.home}
+                    awayName={fixture.away}
+                    homeScore={fixture.result?.home ?? ""}
+                    awayScore={fixture.result?.away ?? ""}
+                  />
                 </CardContent>
               </Card>
             );
