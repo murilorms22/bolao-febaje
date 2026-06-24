@@ -6,6 +6,7 @@ import {
   type ManualPrediction,
 } from "@/lib/manual-fixtures";
 import { rodada2Predictions } from "@/lib/rodada2-predictions";
+import { rodada3Predictions } from "@/lib/rodada3-predictions";
 
 export type RankingProfile = {
   id: string;
@@ -43,7 +44,7 @@ function participantLookupKeys(value: string) {
 
 const round2PredictionAliases: Record<string, string[]> = {
   "altermir.da.silva": ["altemir", "altemir da silva", "altemir.da.silva", "altermir", "altermir da silva"],
-  "altemir": ["altermir.da.silva", "altermir", "altemir da silva"],
+  "altemir": ["altermir.da.silva", "altemir", "altemir da silva"],
   "altemir.da.silva": ["altermir.da.silva", "altemir", "altermir"],
   "debora.dallacort": ["debora", "debora dallacort"],
   "debora": ["debora.dallacort", "debora dallacort"],
@@ -70,24 +71,33 @@ const rodada2PredictionsByParticipant = new Map(
   }),
 );
 
+const rodada3PredictionsByParticipant = new Map(
+  rodada3Predictions.flatMap((participant) => {
+    const keys = exactLookupKeys(participant.username, participant.displayName);
+    return keys.map((key) => [key, participant.predictions] as const);
+  }),
+);
+
 function findRound2Predictions(username: string, displayName?: string | null) {
+  const predictions: { fixtureKey: string; homeScore: number; awayScore: number }[] = [];
+
   for (const key of exactLookupKeys(username, displayName)) {
-    const predictions = rodada2PredictionsByParticipant.get(key);
+    const p2 = rodada2PredictionsByParticipant.get(key);
+    if (p2) predictions.push(...p2);
+    const p3 = rodada3PredictionsByParticipant.get(key);
+    if (p3) predictions.push(...p3);
+  }
 
-    if (predictions) {
-      return predictions;
+  if (predictions.length === 0) {
+    for (const key of aliasLookupKeys(username, displayName)) {
+      const p2 = rodada2PredictionsByParticipant.get(key);
+      if (p2) predictions.push(...p2);
+      const p3 = rodada3PredictionsByParticipant.get(key);
+      if (p3) predictions.push(...p3);
     }
   }
 
-  for (const key of aliasLookupKeys(username, displayName)) {
-    const predictions = rodada2PredictionsByParticipant.get(key);
-
-    if (predictions) {
-      return predictions;
-    }
-  }
-
-  return [];
+  return predictions;
 }
 
 export function applyRound2FallbackPredictions(
