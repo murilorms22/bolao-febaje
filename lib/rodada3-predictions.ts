@@ -1767,5 +1767,1013 @@ export const rodada3Predictions: ManualRoundPrediction[] = [
         "awayScore": 3
       }
     ]
+  },
+  {
+    "username": "gabriel.reichow",
+    "displayName": "Gabriel Reichow",
+    "predictions": [
+      {
+        "fixtureKey": "rodada3-suica-canada",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-bosnia-catar",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-escocia-brasil",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-marrocos-haiti",
+        "homeScore": 3,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-africa-do-sul-coreia-do-sul",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-tchequia-mexico",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-equador-alemanha",
+        "homeScore": 1,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-curacao-costa-do-marfim",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-tunisia-holanda",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-japao-suecia",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-turquia-eua",
+        "homeScore": 1,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-paraguai-australia",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-senegal-iraque",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-noruega-franca",
+        "homeScore": 1,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-cabo-verde-arabia-saudita",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-uruguai-espanha",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-ira-egito",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-nova-zelandia-belgica",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-panama-inglaterra",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-gana-croacia",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-colombia-portugal",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-rd-congo-uzbequistao",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-argelia-austria",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-jordania-argentina",
+        "homeScore": 0,
+        "awayScore": 4
+      }
+    ]
+  },
+  {
+    "username": "debora.dallacort",
+    "displayName": "Debora Dallacort",
+    "predictions": [
+      {
+        "fixtureKey": "rodada3-suica-canada",
+        "homeScore": 2,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-bosnia-catar",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-escocia-brasil",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-marrocos-haiti",
+        "homeScore": 4,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-africa-do-sul-coreia-do-sul",
+        "homeScore": 0,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-tchequia-mexico",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-equador-alemanha",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-curacao-costa-do-marfim",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-tunisia-holanda",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-japao-suecia",
+        "homeScore": 2,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-turquia-eua",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-paraguai-australia",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-senegal-iraque",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-noruega-franca",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-cabo-verde-arabia-saudita",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-uruguai-espanha",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-ira-egito",
+        "homeScore": 0,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-nova-zelandia-belgica",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-panama-inglaterra",
+        "homeScore": 2,
+        "awayScore": 4
+      },
+      {
+        "fixtureKey": "rodada3-gana-croacia",
+        "homeScore": 0,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-colombia-portugal",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-rd-congo-uzbequistao",
+        "homeScore": 0,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-argelia-austria",
+        "homeScore": 0,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-jordania-argentina",
+        "homeScore": 0,
+        "awayScore": 2
+      }
+    ]
+  },
+  {
+    "username": "victor.barreto",
+    "displayName": "Victor Barreto",
+    "predictions": [
+      {
+        "fixtureKey": "rodada3-suica-canada",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-bosnia-catar",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-escocia-brasil",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-marrocos-haiti",
+        "homeScore": 3,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-africa-do-sul-coreia-do-sul",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-tchequia-mexico",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-equador-alemanha",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-curacao-costa-do-marfim",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-tunisia-holanda",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-japao-suecia",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-turquia-eua",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-paraguai-australia",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-senegal-iraque",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-noruega-franca",
+        "homeScore": 1,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-cabo-verde-arabia-saudita",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-uruguai-espanha",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-ira-egito",
+        "homeScore": 0,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-nova-zelandia-belgica",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-panama-inglaterra",
+        "homeScore": 1,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-gana-croacia",
+        "homeScore": 0,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-colombia-portugal",
+        "homeScore": 2,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-rd-congo-uzbequistao",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-argelia-austria",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-jordania-argentina",
+        "homeScore": 0,
+        "awayScore": 3
+      }
+    ]
+  },
+  {
+    "username": "gabriel.haas",
+    "displayName": "Gabriel Haas",
+    "predictions": [
+      {
+        "fixtureKey": "rodada3-suica-canada",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-bosnia-catar",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-escocia-brasil",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-marrocos-haiti",
+        "homeScore": 3,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-africa-do-sul-coreia-do-sul",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-tchequia-mexico",
+        "homeScore": 0,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-equador-alemanha",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-curacao-costa-do-marfim",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-tunisia-holanda",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-japao-suecia",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-turquia-eua",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-paraguai-australia",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-senegal-iraque",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-noruega-franca",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-cabo-verde-arabia-saudita",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-uruguai-espanha",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-ira-egito",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-nova-zelandia-belgica",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-panama-inglaterra",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-gana-croacia",
+        "homeScore": 0,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-colombia-portugal",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-rd-congo-uzbequistao",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-argelia-austria",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-jordania-argentina",
+        "homeScore": 0,
+        "awayScore": 3
+      }
+    ]
+  },
+  {
+    "username": "bazzo",
+    "displayName": "Bazzo",
+    "predictions": [
+      {
+        "fixtureKey": "rodada3-suica-canada",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-bosnia-catar",
+        "homeScore": 1,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-escocia-brasil",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-marrocos-haiti",
+        "homeScore": 3,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-africa-do-sul-coreia-do-sul",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-tchequia-mexico",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-equador-alemanha",
+        "homeScore": 1,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-curacao-costa-do-marfim",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-tunisia-holanda",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-japao-suecia",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-turquia-eua",
+        "homeScore": 0,
+        "awayScore": 4
+      },
+      {
+        "fixtureKey": "rodada3-paraguai-australia",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-senegal-iraque",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-noruega-franca",
+        "homeScore": 1,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-cabo-verde-arabia-saudita",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-uruguai-espanha",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-ira-egito",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-nova-zelandia-belgica",
+        "homeScore": 0,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-panama-inglaterra",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-gana-croacia",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-colombia-portugal",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-rd-congo-uzbequistao",
+        "homeScore": 1,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-argelia-austria",
+        "homeScore": 0,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-jordania-argentina",
+        "homeScore": 0,
+        "awayScore": 3
+      }
+    ]
+  },
+  {
+    "username": "ary",
+    "displayName": "Ary",
+    "predictions": [
+      {
+        "fixtureKey": "rodada3-suica-canada",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-bosnia-catar",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-escocia-brasil",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-marrocos-haiti",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-africa-do-sul-coreia-do-sul",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-tchequia-mexico",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-equador-alemanha",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-curacao-costa-do-marfim",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-tunisia-holanda",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-japao-suecia",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-turquia-eua",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-paraguai-australia",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-senegal-iraque",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-noruega-franca",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-cabo-verde-arabia-saudita",
+        "homeScore": 1,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-uruguai-espanha",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-ira-egito",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-nova-zelandia-belgica",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-panama-inglaterra",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-gana-croacia",
+        "homeScore": 0,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-colombia-portugal",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-rd-congo-uzbequistao",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-argelia-austria",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-jordania-argentina",
+        "homeScore": 0,
+        "awayScore": 2
+      }
+    ]
+  },
+  {
+    "username": "raissa",
+    "displayName": "Raíssa Remboski",
+    "predictions": [
+      {
+        "fixtureKey": "rodada3-suica-canada",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-bosnia-catar",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-escocia-brasil",
+        "homeScore": 1,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-marrocos-haiti",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-africa-do-sul-coreia-do-sul",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-tchequia-mexico",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-equador-alemanha",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-curacao-costa-do-marfim",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-tunisia-holanda",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-japao-suecia",
+        "homeScore": 2,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-turquia-eua",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-paraguai-australia",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-senegal-iraque",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-noruega-franca",
+        "homeScore": 1,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-cabo-verde-arabia-saudita",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-uruguai-espanha",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-ira-egito",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-nova-zelandia-belgica",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-panama-inglaterra",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-gana-croacia",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-colombia-portugal",
+        "homeScore": 1,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-rd-congo-uzbequistao",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-argelia-austria",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-jordania-argentina",
+        "homeScore": 0,
+        "awayScore": 5
+      }
+    ]
+  },
+  {
+    "username": "mateus.felipe",
+    "displayName": "Mateus Felipe",
+    "predictions": [
+      {
+        "fixtureKey": "rodada3-suica-canada",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-bosnia-catar",
+        "homeScore": 1,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-escocia-brasil",
+        "homeScore": 0,
+        "awayScore": 4
+      },
+      {
+        "fixtureKey": "rodada3-marrocos-haiti",
+        "homeScore": 3,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-africa-do-sul-coreia-do-sul",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-tchequia-mexico",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-equador-alemanha",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-curacao-costa-do-marfim",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-tunisia-holanda",
+        "homeScore": 0,
+        "awayScore": 4
+      },
+      {
+        "fixtureKey": "rodada3-japao-suecia",
+        "homeScore": 2,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-turquia-eua",
+        "homeScore": 1,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-paraguai-australia",
+        "homeScore": 1,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-senegal-iraque",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-noruega-franca",
+        "homeScore": 2,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-cabo-verde-arabia-saudita",
+        "homeScore": 1,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-uruguai-espanha",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-ira-egito",
+        "homeScore": 1,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-nova-zelandia-belgica",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "rodada3-panama-inglaterra",
+        "homeScore": 0,
+        "awayScore": 3
+      },
+      {
+        "fixtureKey": "rodada3-gana-croacia",
+        "homeScore": 1,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-colombia-portugal",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-rd-congo-uzbequistao",
+        "homeScore": 2,
+        "awayScore": 0
+      },
+      {
+        "fixtureKey": "rodada3-argelia-austria",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "rodada3-jordania-argentina",
+        "homeScore": 0,
+        "awayScore": 3
+      }
+    ]
   }
 ];
