@@ -1,8 +1,6 @@
 import { AdminMessage } from "@/components/admin/admin-message";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { SubmitButton } from "@/components/ui/submit-button";
 import { CompactRankingList } from "@/app/ranking/ranking-list";
 import {
   applyManualResults,
@@ -23,7 +21,6 @@ import {
 } from "@/lib/ranking";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { savePrediction } from "./actions";
 import { RoundSelect } from "./round-select";
 
 export const dynamic = "force-dynamic";
@@ -162,37 +159,12 @@ export default async function DashboardPage({
                   </p>
                 </CardHeader>
                 <CardContent className="p-3 pt-0 sm:p-4 sm:pt-0">
-                  <form action={savePrediction} className="space-y-3">
-                    <input type="hidden" name="fixture_key" value={fixture.id} />
-                    <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2">
-                      <Input
-                        className="h-11 text-center text-base"
-                        aria-label={`Palpite ${fixture.home}`}
-                        name="home_score"
-                        type="number"
-                        min="0"
-                        max="99"
-                        defaultValue={prediction?.home_score ?? ""}
-                        disabled={!isOpen}
-                        required
-                      />
-                      <span className="text-muted-foreground">x</span>
-                      <Input
-                        className="h-11 text-center text-base"
-                        aria-label={`Palpite ${fixture.away}`}
-                        name="away_score"
-                        type="number"
-                        min="0"
-                        max="99"
-                        defaultValue={prediction?.away_score ?? ""}
-                        disabled={!isOpen}
-                        required
-                      />
-                    </div>
-                    <SubmitButton className="h-10 w-full" size="sm" disabled={!isOpen} pendingText="Salvando...">
-                      {!isOpen ? "Trancado" : prediction ? "Editar" : "Salvar"}
-                    </SubmitButton>
-                  </form>
+                  <div className="rounded-lg bg-muted/50 p-2 text-center">
+                    <span className="text-[11px] text-muted-foreground block mb-0.5">Seu Palpite</span>
+                    <span className="text-base font-bold tracking-wider">
+                      {prediction ? `${prediction.home_score} x ${prediction.away_score}` : "Sem palpite"}
+                    </span>
+                  </div>
                 </CardContent>
               </Card>
             );
