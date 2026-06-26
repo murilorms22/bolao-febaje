@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/ranking", label: "Ranking" },
+  { href: "/comparacoes", label: "Comparações" },
   { href: "/admin", label: "Admin" },
 ];
 
