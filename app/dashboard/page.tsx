@@ -30,7 +30,7 @@ type Profile = {
   display_name: string | null;
 };
 
-const lockedPredictionRounds = new Set(["Fase de Grupos - Rodada 2", "Fase de Grupos - Rodada 3"]);
+const lockedPredictionRounds = new Set(["Fase de Grupos - Rodada 2", "Fase de Grupos - Rodada 3", "16 Avos de Final"]);
 
 const statusStyles = {
   pending: "border-muted bg-card",
