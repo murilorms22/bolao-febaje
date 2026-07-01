@@ -128,7 +128,7 @@ export function RankingList({ ranking, fixtures, rounds, predictions }: RankingL
   return (
     <div className="space-y-3">
       <div className="hidden overflow-hidden rounded-lg border bg-card md:block">
-        <div className="grid grid-cols-[48px_minmax(0,1fr)_80px_120px_100px_80px_95px_36px] border-b px-4 py-3 text-left text-sm text-muted-foreground">
+        <div className="grid grid-cols-[48px_minmax(0,1fr)_80px_120px_100px_80px_95px_36px] border-b px-4 py-3 text-center text-sm text-muted-foreground">
           <span>#</span>
           <span>Nome</span>
           <span>Total</span>
@@ -145,7 +145,7 @@ export function RankingList({ ranking, fixtures, rounds, predictions }: RankingL
           return (
             <div key={row.id} className="border-b last:border-0">
               <button
-                className="grid w-full grid-cols-[48px_minmax(0,1fr)_80px_120px_100px_80px_95px_36px] items-center px-4 py-3 text-left text-sm hover:bg-accent"
+                className="grid w-full grid-cols-[48px_minmax(0,1fr)_80px_120px_100px_80px_95px_36px] items-center px-4 py-3 text-center text-sm hover:bg-accent"
                 onClick={() => setOpenParticipantId(isOpen ? null : row.id)}
               >
                 <span>{index + 1}</span>
@@ -155,7 +155,7 @@ export function RankingList({ ranking, fixtures, rounds, predictions }: RankingL
                 <span>{row.knockoutStagePoints}</span>
                 <span>{row.exactPredictions}</span>
                 <span>{row.correctOutcomes}</span>
-                <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen ? "rotate-180" : null)} />
+                <ChevronDown className={cn("h-4 w-4 mx-auto transition-transform", isOpen ? "rotate-180" : null)} />
               </button>
 
               {isOpen ? (
