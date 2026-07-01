@@ -183,22 +183,32 @@ export function calculateRanking(
     .filter((profile) => profile.role !== "admin" && profile.username !== "muriloadm")
     .map((profile) => {
       const userPredictions = predictionsByUser.get(profile.id);
-      let predictionPoints = 0;
+      let groupStagePoints = 0;
+      let knockoutStagePoints = 0;
       let exactPredictions = 0;
       let correctOutcomes = 0;
 
       for (const fixture of fixtures) {
         const score = scoreFixture(fixture, userPredictions?.get(normalizeFixtureKey(fixture.id)));
-        predictionPoints += score.points;
+        const isKnockout = !fixture.round.startsWith("Fase de Grupos");
+        if (isKnockout) {
+          knockoutStagePoints += score.points;
+        } else {
+          groupStagePoints += score.points;
+        }
         if (score.status === "exact") exactPredictions += 1;
         if (score.status === "outcome") correctOutcomes += 1;
       }
+
+      const predictionPoints = groupStagePoints + knockoutStagePoints;
 
       return {
         id: profile.id,
         name: profile.display_name || profile.username,
         initialPoints: Number(profile.initial_points || 0),
         predictionPoints,
+        groupStagePoints,
+        knockoutStagePoints,
         totalPoints: Number(profile.initial_points || 0) + predictionPoints,
         exactPredictions,
         correctOutcomes,

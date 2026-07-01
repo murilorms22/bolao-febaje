@@ -19,6 +19,8 @@ type RankingRow = {
   name: string;
   initialPoints: number;
   predictionPoints: number;
+  groupStagePoints: number;
+  knockoutStagePoints: number;
   totalPoints: number;
   exactPredictions: number;
   correctOutcomes: number;
@@ -126,12 +128,12 @@ export function RankingList({ ranking, fixtures, rounds, predictions }: RankingL
   return (
     <div className="space-y-3">
       <div className="hidden overflow-hidden rounded-lg border bg-card md:block">
-        <div className="grid grid-cols-[48px_minmax(0,1fr)_90px_90px_90px_90px_100px_36px] border-b px-4 py-3 text-left text-sm text-muted-foreground">
+        <div className="grid grid-cols-[48px_minmax(0,1fr)_80px_120px_100px_80px_95px_36px] border-b px-4 py-3 text-left text-sm text-muted-foreground">
           <span>#</span>
           <span>Nome</span>
           <span>Total</span>
-          <span>Palpites</span>
-          <span>Inicial</span>
+          <span>Fase de Grupos</span>
+          <span>Mata-Mata</span>
           <span>Exatos</span>
           <span>Resultados</span>
           <span />
@@ -143,14 +145,14 @@ export function RankingList({ ranking, fixtures, rounds, predictions }: RankingL
           return (
             <div key={row.id} className="border-b last:border-0">
               <button
-                className="grid w-full grid-cols-[48px_minmax(0,1fr)_90px_90px_90px_90px_100px_36px] items-center px-4 py-3 text-left text-sm hover:bg-accent"
+                className="grid w-full grid-cols-[48px_minmax(0,1fr)_80px_120px_100px_80px_95px_36px] items-center px-4 py-3 text-left text-sm hover:bg-accent"
                 onClick={() => setOpenParticipantId(isOpen ? null : row.id)}
               >
                 <span>{index + 1}</span>
                 <span className="truncate font-medium">{row.name}</span>
                 <span className="font-semibold">{row.totalPoints}</span>
-                <span>{row.predictionPoints}</span>
-                <span>{row.initialPoints}</span>
+                <span>{row.groupStagePoints} pts</span>
+                <span>{row.knockoutStagePoints} pts</span>
                 <span>{row.exactPredictions}</span>
                 <span>{row.correctOutcomes}</span>
                 <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen ? "rotate-180" : null)} />
@@ -196,12 +198,38 @@ export function RankingList({ ranking, fixtures, rounds, predictions }: RankingL
               </button>
 
               {isOpen ? (
-                <PredictionSummary
-                  participantId={row.id}
-                  fixtures={fixtures}
-                  rounds={rounds}
-                  predictionsByUser={predictionsByUser}
-                />
+                <div className="border-t bg-muted/10 px-4 py-3 space-y-4">
+                  <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                    <div className="rounded border bg-card p-2">
+                      <span className="text-[10px] text-muted-foreground block font-medium">Fase de Grupos</span>
+                      <span className="text-sm font-bold text-foreground mt-0.5">{row.groupStagePoints} pts</span>
+                    </div>
+                    <div className="rounded border bg-card p-2">
+                      <span className="text-[10px] text-muted-foreground block font-medium">Mata-Mata</span>
+                      <span className="text-sm font-bold text-foreground mt-0.5">{row.knockoutStagePoints} pts</span>
+                    </div>
+                    <div className="rounded border bg-card p-2">
+                      <span className="text-[10px] text-muted-foreground block font-medium">Exatos</span>
+                      <span className="text-sm font-bold text-foreground mt-0.5">{row.exactPredictions}</span>
+                    </div>
+                    <div className="rounded border bg-card p-2">
+                      <span className="text-[10px] text-muted-foreground block font-medium">Resultados</span>
+                      <span className="text-sm font-bold text-foreground mt-0.5">{row.correctOutcomes}</span>
+                    </div>
+                    {row.initialPoints > 0 && (
+                      <div className="rounded border bg-card p-2 col-span-2">
+                        <span className="text-[10px] text-muted-foreground block font-medium">Pontos Iniciais</span>
+                        <span className="text-sm font-bold text-foreground mt-0.5">{row.initialPoints} pts</span>
+                      </div>
+                    )}
+                  </div>
+                  <PredictionSummary
+                    participantId={row.id}
+                    fixtures={fixtures}
+                    rounds={rounds}
+                    predictionsByUser={predictionsByUser}
+                  />
+                </div>
               ) : null}
             </Card>
           );
@@ -258,12 +286,32 @@ export function CompactRankingList({ ranking, fixtures, rounds, predictions }: R
             </button>
 
             {isOpen ? (
-              <PredictionSummary
-                participantId={row.id}
-                fixtures={fixtures}
-                rounds={rounds}
-                predictionsByUser={predictionsByUser}
-              />
+              <div className="border-t bg-muted/10 p-2.5 space-y-3">
+                <div className="grid grid-cols-2 gap-1.5 text-center text-[11px]">
+                  <div className="rounded border bg-card p-1">
+                    <span className="text-[9px] text-muted-foreground block font-medium">Grupos</span>
+                    <span className="font-bold text-foreground">{row.groupStagePoints} pts</span>
+                  </div>
+                  <div className="rounded border bg-card p-1">
+                    <span className="text-[9px] text-muted-foreground block font-medium">Mata-Mata</span>
+                    <span className="font-bold text-foreground">{row.knockoutStagePoints} pts</span>
+                  </div>
+                  <div className="rounded border bg-card p-1">
+                    <span className="text-[9px] text-muted-foreground block font-medium">Exatos</span>
+                    <span className="font-bold text-foreground">{row.exactPredictions}</span>
+                  </div>
+                  <div className="rounded border bg-card p-1">
+                    <span className="text-[9px] text-muted-foreground block font-medium">Resultados</span>
+                    <span className="font-bold text-foreground">{row.correctOutcomes}</span>
+                  </div>
+                </div>
+                <PredictionSummary
+                  participantId={row.id}
+                  fixtures={fixtures}
+                  rounds={rounds}
+                  predictionsByUser={predictionsByUser}
+                />
+              </div>
             ) : null}
           </div>
         );
