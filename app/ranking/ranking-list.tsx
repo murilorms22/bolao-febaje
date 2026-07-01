@@ -129,8 +129,8 @@ export function RankingList({ ranking, fixtures, rounds, predictions }: RankingL
     <div className="space-y-3">
       <div className="hidden overflow-hidden rounded-lg border bg-card md:block">
         <div className="grid grid-cols-[48px_minmax(0,1fr)_80px_120px_100px_80px_95px_36px] border-b px-4 py-3 text-center text-sm text-muted-foreground">
-          <span>#</span>
-          <span>Nome</span>
+          <span className="text-left">#</span>
+          <span className="text-left">Nome</span>
           <span>Total</span>
           <span>Fase de Grupos</span>
           <span>Mata-Mata</span>
@@ -148,8 +148,8 @@ export function RankingList({ ranking, fixtures, rounds, predictions }: RankingL
                 className="grid w-full grid-cols-[48px_minmax(0,1fr)_80px_120px_100px_80px_95px_36px] items-center px-4 py-3 text-center text-sm hover:bg-accent"
                 onClick={() => setOpenParticipantId(isOpen ? null : row.id)}
               >
-                <span>{index + 1}</span>
-                <span className="truncate font-medium">{row.name}</span>
+                <span className="text-left">{index + 1}</span>
+                <span className="truncate font-medium text-left">{row.name}</span>
                 <span className="font-semibold">{row.totalPoints}</span>
                 <span>{row.groupStagePoints}</span>
                 <span>{row.knockoutStagePoints}</span>
