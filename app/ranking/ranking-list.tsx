@@ -151,8 +151,8 @@ export function RankingList({ ranking, fixtures, rounds, predictions }: RankingL
                 <span>{index + 1}</span>
                 <span className="truncate font-medium">{row.name}</span>
                 <span className="font-semibold">{row.totalPoints}</span>
-                <span>{row.groupStagePoints} pts</span>
-                <span>{row.knockoutStagePoints} pts</span>
+                <span>{row.groupStagePoints}</span>
+                <span>{row.knockoutStagePoints}</span>
                 <span>{row.exactPredictions}</span>
                 <span>{row.correctOutcomes}</span>
                 <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen ? "rotate-180" : null)} />
