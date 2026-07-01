@@ -198,12 +198,15 @@ export function scoreFixture(
   const resultHome = Number(fixture.result.home);
   const resultAway = Number(fixture.result.away);
 
+  const isKnockout = !fixture.round.startsWith("Fase de Grupos");
+  const multiplier = isKnockout ? 2 : 1;
+
   if (predictedHome === resultHome && predictedAway === resultAway) {
-    return { points: 10, status: "exact" };
+    return { points: 10 * multiplier, status: "exact" };
   }
 
   if (outcome(predictedHome, predictedAway) === outcome(resultHome, resultAway)) {
-    return { points: 5, status: "outcome" };
+    return { points: 5 * multiplier, status: "outcome" };
   }
 
   return { points: 0, status: "wrong" };
