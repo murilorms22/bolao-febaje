@@ -139,6 +139,18 @@ export const manualFixtures: ManualFixture[] = [
   fixture("16avos-brasil-japao", round16avos, "Brasil", "Japão", "br", "jp"),
   fixture("16avos-alemanha-paraguai", round16avos, "Alemanha", "Paraguai", "de", "py"),
   fixture("16avos-holanda-marrocos", round16avos, "Holanda", "Marrocos", "nl", "ma"),
+  fixture("16avos-costa-do-marfim-noruega", round16avos, "Costa do Marfim", "Noruega", "ci", "no"),
+  fixture("16avos-franca-suecia", round16avos, "França", "Suécia", "fr", "se"),
+  fixture("16avos-mexico-equador", round16avos, "México", "Equador", "mx", "ec"),
+  fixture("16avos-inglaterra-rd-congo", round16avos, "Inglaterra", "RD Congo", "gb-eng", "cd"),
+  fixture("16avos-belgica-senegal", round16avos, "Bélgica", "Senegal", "be", "sn"),
+  fixture("16avos-eua-bosnia", round16avos, "EUA", "Bósnia", "us", "ba"),
+  fixture("16avos-espanha-austria", round16avos, "Espanha", "Áustria", "es", "at"),
+  fixture("16avos-portugal-croacia", round16avos, "Portugal", "Croácia", "pt", "hr"),
+  fixture("16avos-suica-argelia", round16avos, "Suíça", "Argélia", "ch", "dz"),
+  fixture("16avos-australia-egito", round16avos, "Austrália", "Egito", "au", "eg"),
+  fixture("16avos-argentina-cabo-verde", round16avos, "Argentina", "Cabo Verde", "ar", "cv"),
+  fixture("16avos-colombia-gana", round16avos, "Colômbia", "Gana", "co", "gh"),
 ];
 
 export const manualRounds = Array.from(new Set(manualFixtures.map((item) => item.round)));
