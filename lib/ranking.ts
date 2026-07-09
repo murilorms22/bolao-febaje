@@ -8,6 +8,7 @@ import {
 import { rodada2Predictions } from "@/lib/rodada2-predictions";
 import { rodada3Predictions } from "@/lib/rodada3-predictions";
 import { predictions16avos } from "@/lib/16avos-predictions";
+import { predictionsOitavas } from "@/lib/oitavas-predictions";
 
 export type RankingProfile = {
   id: string;
@@ -86,6 +87,13 @@ const predictions16avosByParticipant = new Map(
   }),
 );
 
+const predictionsOitavasByParticipant = new Map(
+  predictionsOitavas.flatMap((participant) => {
+    const keys = exactLookupKeys(participant.username, participant.displayName);
+    return keys.map((key) => [key, participant.predictions] as const);
+  }),
+);
+
 function findRound2Predictions(username: string, displayName?: string | null) {
   const predictions: { fixtureKey: string; homeScore: number; awayScore: number }[] = [];
 
@@ -96,6 +104,8 @@ function findRound2Predictions(username: string, displayName?: string | null) {
     if (p3) predictions.push(...p3);
     const p16 = predictions16avosByParticipant.get(key);
     if (p16) predictions.push(...p16);
+    const pOitavas = predictionsOitavasByParticipant.get(key);
+    if (pOitavas) predictions.push(...pOitavas);
   }
 
   if (predictions.length === 0) {
@@ -106,6 +116,8 @@ function findRound2Predictions(username: string, displayName?: string | null) {
       if (p3) predictions.push(...p3);
       const p16 = predictions16avosByParticipant.get(key);
       if (p16) predictions.push(...p16);
+      const pOitavas = predictionsOitavasByParticipant.get(key);
+      if (pOitavas) predictions.push(...pOitavas);
     }
   }
 

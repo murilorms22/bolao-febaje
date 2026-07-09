@@ -58,6 +58,7 @@ const round1 = "Fase de Grupos - Rodada 1";
 const round2 = "Fase de Grupos - Rodada 2";
 const round3 = "Fase de Grupos - Rodada 3";
 const round16avos = "16 Avos de Final";
+const roundOitavas = "Oitavas de Final";
 
 export const manualFixtures: ManualFixture[] = [
   fixture("rodada1-mexico-africa-do-sul", round1, "México", "África do Sul", "mx", "za", { home: 2, away: 0 }, { home: 1, away: 0 }),
@@ -151,6 +152,15 @@ export const manualFixtures: ManualFixture[] = [
   fixture("16avos-australia-egito", round16avos, "Austrália", "Egito", "au", "eg"),
   fixture("16avos-argentina-cabo-verde", round16avos, "Argentina", "Cabo Verde", "ar", "cv"),
   fixture("16avos-colombia-gana", round16avos, "Colômbia", "Gana", "co", "gh"),
+
+  fixture("oitavas-canada-marrocos", roundOitavas, "Canadá", "Marrocos", "ca", "ma"),
+  fixture("oitavas-paraguai-franca", roundOitavas, "Paraguai", "França", "py", "fr"),
+  fixture("oitavas-brasil-noruega", roundOitavas, "Brasil", "Noruega", "br", "no"),
+  fixture("oitavas-mexico-inglaterra", roundOitavas, "México", "Inglaterra", "mx", "gb-eng"),
+  fixture("oitavas-portugal-espanha", roundOitavas, "Portugal", "Espanha", "pt", "es"),
+  fixture("oitavas-eua-belgica", roundOitavas, "EUA", "Bélgica", "us", "be"),
+  fixture("oitavas-argentina-egito", roundOitavas, "Argentina", "Egito", "ar", "eg"),
+  fixture("oitavas-suica-colombia", roundOitavas, "Suíça", "Colômbia", "ch", "co"),
 ];
 
 export const manualRounds = Array.from(new Set(manualFixtures.map((item) => item.round)));
