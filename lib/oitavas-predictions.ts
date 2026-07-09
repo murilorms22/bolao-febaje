@@ -192,6 +192,11 @@ export const predictionsOitavas: ManualRoundPrediction[] = [
     "displayName": "Abelha",
     "predictions": [
       {
+        "fixtureKey": "oitavas-canada-marrocos",
+        "homeScore": 1,
+        "awayScore": 2
+      },
+      {
         "fixtureKey": "oitavas-paraguai-franca",
         "homeScore": 1,
         "awayScore": 4
@@ -968,6 +973,21 @@ export const predictionsOitavas: ManualRoundPrediction[] = [
     "username": "vitor.fregulia",
     "displayName": "Vitor Fregulia",
     "predictions": [
+      {
+        "fixtureKey": "oitavas-paraguai-franca",
+        "homeScore": 0,
+        "awayScore": 2
+      },
+      {
+        "fixtureKey": "oitavas-brasil-noruega",
+        "homeScore": 2,
+        "awayScore": 1
+      },
+      {
+        "fixtureKey": "oitavas-mexico-inglaterra",
+        "homeScore": 2,
+        "awayScore": 1
+      },
       {
         "fixtureKey": "oitavas-portugal-espanha",
         "homeScore": 2,
