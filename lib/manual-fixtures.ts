@@ -60,6 +60,7 @@ const round3 = "Fase de Grupos - Rodada 3";
 const round16avos = "16 Avos de Final";
 const roundOitavas = "Oitavas de Final";
 const roundQuartas = "Quartas de Final";
+const roundSemi = "Semifinal";
 
 export const manualFixtures: ManualFixture[] = [
   fixture("rodada1-mexico-africa-do-sul", round1, "México", "África do Sul", "mx", "za", { home: 2, away: 0 }, { home: 1, away: 0 }),
@@ -167,6 +168,9 @@ export const manualFixtures: ManualFixture[] = [
   fixture("quartas-espanha-belgica", roundQuartas, "Espanha", "Bélgica", "es", "be"),
   fixture("quartas-noruega-inglaterra", roundQuartas, "Noruega", "Inglaterra", "no", "gb-eng"),
   fixture("quartas-argentina-suica", roundQuartas, "Argentina", "Suíça", "ar", "ch"),
+
+  fixture("semifinal-franca-espanha", roundSemi, "França", "Espanha", "fr", "es"),
+  fixture("semifinal-inglaterra-argentina", roundSemi, "Inglaterra", "Argentina", "gb-eng", "ar"),
 ];
 
 export const manualRounds = Array.from(new Set(manualFixtures.map((item) => item.round)));
